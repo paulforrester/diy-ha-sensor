@@ -20,7 +20,7 @@ MSR-2 reads several degrees high and has no humidity. The Aqara FP300 reports sl
 review. Nothing is ordered or built yet.
 
 - [`docs/design_proposal.md`](docs/design_proposal.md): the approved design, its reasoning and risks.
-- [`docs/bom.md`](docs/bom.md): parts, quantities, sources and costs (prices not yet live-checked).
+- [`docs/bom.md`](docs/bom.md): parts, quantities, sources and costs (prices live-checked 2026-10-15).
 - [`docs/design_decisions.md`](docs/design_decisions.md): the decision log.
 - Concept renders, STLs you can rotate on GitHub, and the wiring diagram are in proposal section 6.0 and
   `cad/concept/`. The real enclosure comes in Phase 3.

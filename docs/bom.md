@@ -2,9 +2,10 @@
 
 - **Date:** 2026-10-15 (`TZ=Europe/Paris date`).
 - **Status:** draft for Paul's review. **Nothing is ordered**; Paul buys everything.
-- **Prices:** **none is live-checked yet.** This cloud session can't reach any shop (proxy 403, domains in
-  `docs/design_proposal.md` section 9). Every price is a search-engine snippet or an assumption, and is labelled as
-  such. A live price pass (section 8) replaces them before Paul orders.
+- **Prices:** **live-checked on 2026-10-15** for lines 1-14, from the shop pages themselves (a session on Paul's Mac,
+  not behind the cloud proxy). Prices include VAT; stock, shipping and delivery estimates are in `docs/bom.csv`.
+  Line 15 (PETG) is Paul's stock and isn't priced. Shop prices and stock change daily, and the cart is the only exact
+  figure for delivery, VAT and duty (section 8, step 7).
 - **Source of truth:** `docs/bom.csv`. The parts table and the cost tables below are generated from it by
   `python3 tools/bom_totals.py`. Edit the CSV, then re-run the script; don't edit those tables by hand.
 
@@ -23,14 +24,21 @@
   the unit (Paul's decision; section 5);
 - its own USB wall adapter and a white 2 m USB-A to USB-C cable.
 
-**Estimated cost:**
+**Cost** (live prices, 2026-10-15; section 4 has the detail):
 
-| | Estimate |
+| | Cost |
 |---|---|
-| Standard unit, per unit | about €72-85 |
-| ...of which the CO2 sensor (genuine Adafruit SCD-40) | about €48-54 |
-| USB adapter and cable, per unit | about €4.50-10 |
-| **Whole run**, before delivery and duty | **about €870-1,120** |
+| Standard unit, per unit | about €76-86 |
+| ...of which the CO2 sensor (genuine Adafruit SCD-40) | about €47-53 |
+| USB adapter and cable, per unit | about €14-16.50 |
+| **Whole run**, before delivery and duty | **about €1,020-1,200** |
+
+Against the snippet estimate (€868-1,125), the low end rose by about €150 and the high end by about €70 [calc]:
+
+- **USB adapters, about +€75:** the €2.50 adapter in the draft is an unbranded 1 A part that fails this BOM's own
+  "reputable brand" rule. Branded ones on Amazon.fr cost €10-12 each (line 11). Paul decides; see section 3.
+- **OPT3001 boards, about +€28, and radars, about +€21:** real listings cost more than the snippets suggested.
+- **Everything from DigiKey** is within a few cents of the snippet figures.
 
 **Why the CO2 sensor costs more than the brief's estimate.** The brief estimated €20-25 per CO2 sensor.
 
@@ -68,41 +76,57 @@ The run quantity is the per-unit quantity × 10, plus spares.
 
 | # | Part | Per unit | Run qty | Primary source | Alternative | Price each | Price basis | Counterfeit risk |
 |---|---|---|---|---|---|---|---|---|
-| 1 | **Seeed XIAO ESP32-C3**<br>Seeed SKU 113991054; includes the U.FL FPC antenna | 1 | 12 | [DigiKey.fr](https://www.digikey.fr/en/products/detail/seeed-technology-co-ltd/113991054/16652880) | [Gotronic](https://www.gotronic.fr/art-carte-xiao-esp32c3-35643.htm) | €5.39 - €5.90 | estimated: search snippet 2026-10-15 | low (Seeed via distributor) |
-| 2 | **HLK-LD2412 radar**<br>Hi-Link LD2412, ±75° version; check firmware is not V1.26 on arrival | 1 | 12 | [AliExpress, Shenzhen Hi-Link Electronic official store](https://www.aliexpress.com/w/wholesale-hlk-ld2412.html) | [Domadoo (Apollo-sold module)](https://www.domadoo.fr/en/smart-home-products/8382-apollo-automation-mmwave-ld2412-sensor.html) | €3.10 - €6.50 | estimated: search snippet 2026-10-15 | low (manufacturer store) to medium (resellers) |
-| 3 | **HLK-LD2410C radar (fallback and comparison)**<br>Hi-Link LD2410C; same family as the Apollo's LD2410B | 0 | 2 | [AliExpress, Shenzhen Hi-Link Electronic official store](https://www.aliexpress.com/w/wholesale-ld2410c.html) | [Amazon.fr (RUANI 5-pack)](https://www.amazon.fr/RUANI-HLK-LD2410C-Pr%C3%A9sence-D%C3%A9tection-Mouvement/dp/B0DCJLRLKJ) | €1.50 - €5.72 | estimated: search snippet 2026-10-15 | low to medium |
-| 4 | **Adafruit SHT45 breakout**<br>Adafruit product 5665 (Sensirion SHT45-AD1B, STEMMA QT) | 1 | 11 | [DigiKey.fr](https://www.digikey.fr/fr/products/detail/adafruit-industries-llc/5665/17831054) | [Berrybase](https://www.berrybase.de/en/adafruit-sensirion-sht45-precision-temperature-humidity-sensor) | €12.78 - €13.75 | estimated: search snippet 2026-10-15 | low (Adafruit via distributor) |
-| 5 | **OPT3001 breakout**<br>Generic OPT3001 board (often sold as CJMCU-3001) with the ADDR pin broken out | 1 | 13 | [AliExpress](https://www.aliexpress.com/w/wholesale-opt3001.html) | MikroElektronika Ambient 2 Click (OPT3001) via DigiKey or Mouser | €1.00 - €3.00 | assumed: no price found | medium (generic board; check the TI marking) |
-| 6 | **JST-SH 4-pin cable for the SHT45**<br>STEMMA QT / Qwiic plug at one end, bare wire or female sockets at the other; 100-150 mm | 1 | 12 | DigiKey.fr (Adafruit or SparkFun cable) | [AliExpress (generic JST-SH 1.0 mm 4-pin pigtails)](https://www.aliexpress.com/w/wholesale-jst-sh-4-pin-cable.html) | €1.00 - €1.50 | assumed: no price found | low |
-| 7 | **Adafruit SCD-40 CO2 breakout**<br>Adafruit product 5187 (Sensirion SCD40, STEMMA QT, onboard 3.3 V regulator and level shifters) | 1 | 11 | DigiKey.fr | [Berrybase (Adafruit SCD-41, product 5190)](https://www.berrybase.de/en/adafruit-scd-41-co2-sensor-400-5000-ppm-40ppm-5-temperature-and-humidity-sensor-3.3-5v) | €47.28 - €52.90 | estimated: search snippet 2026-10-15 | low (Adafruit via distributor); high for unbranded marketplace SCD4x |
-| 8 | **JST-SH 4-pin cable for the SCD-40**<br>as line 6, 100 mm | 1 | 11 | as line 6 | as line 6 | €1.00 - €1.50 | assumed: no price found | low |
-| 9 | **4.7 kΩ resistor, 1-Wire pull-up**<br>1/4 W through-hole; pulls the 1-Wire line (D2 / GPIO4) up to 3V3 | 1 | 15 | DigiKey.fr (with order A) | [AliExpress resistor assortment](https://www.aliexpress.com/w/wholesale-resistor-kit-1-4w.html) | €0.05 - €0.20 | assumed: no price found | low |
-| 10 | **JST-XH 3-pin header, 1-Wire socket**<br>2.5 mm pitch, through-hole, straight; mates with an XH 3-pin housing on a future probe cable | 1 | 12 | [AliExpress (JST-XH connector kit)](https://www.aliexpress.com/w/wholesale-jst-xh-2.5mm-connector-kit.html) | DigiKey.fr (genuine JST B3B-XH-A) | €0.10 - €0.40 | assumed: no price found | low |
-| 11 | **USB wall adapter, 5 V**<br>USB-A output, 5 V at least 1 A (2 A preferred), EU plug, CE marked, reputable brand | 1 | 10 | [Amazon.fr (multipack)](https://www.amazon.fr/Chargeur-Adaptateur-Compatible-Smartwatch-%C3%89couteurs/dp/B0CLMBHCVF) | local retailer | €2.50 - €6.00 | estimated: search snippet 2026-10-15 | medium (electrical safety: avoid unbranded adapters) |
-| 12 | **USB-A to USB-C cable**<br>White, 2 m, USB-A to USB-C (Paul, 2026-10-15) | 1 | 10 | Amazon.fr (multipack) | local retailer | €2.00 - €4.00 | assumed: no price found | low |
-| 13 | **Wiring consumables**<br>26 AWG silicone hookup wire (6 colours), heat-shrink assortment, small perfboard strips, 2.54 mm headers | — | 1 | AliExpress | Amazon.fr | €15.00 - €20.00 | assumed: no price found | low |
-| 14 | **Fixings**<br>M2 x 6 mm self-tapping screws for board standoffs; wall screws and plugs (2 per unit) | — | 1 | Amazon.fr | local hardware shop | €5.00 - €8.00 | assumed: no price found | low |
-| 15 | **PETG filament**<br>About 60 g per unit plus fit coupons: about 0.7 kg; plus a little natural PETG only if the printed lux window is chosen | — | 1 | Paul's stock |  | €0.00 - €22.00 | assumed: no price found | low |
+| 1 | **Seeed XIAO ESP32-C3**<br>Seeed SKU 113991054; includes the U.FL FPC antenna | 1 | 12 | [DigiKey.fr](https://www.digikey.fr/en/products/detail/seeed-technology-co-ltd/113991054/16652880) | [Gotronic](https://www.gotronic.fr/art-carte-xiao-esp32c3-35643.htm) | €5.53 - €5.90 | live-checked 2026-10-15 | low (Seeed via distributor) |
+| 2 | **HLK-LD2412 radar**<br>Hi-Link LD2412, ±75° version; check firmware is not V1.26 on arrival | 1 | 12 | [AliExpress, Shenzhen Hi-Link module Store (store 4418003)](https://fr.aliexpress.com/item/1005007588627535.html) | [Domadoo (Apollo-sold module)](https://www.domadoo.fr/en/smart-home-products/8382-apollo-automation-mmwave-ld2412-sensor.html) | €4.49 - €5.99 | live-checked 2026-10-15 | low to medium (Hi-Link-named stores; which one is Hi-Link's own is not confirmed) |
+| 3 | **HLK-LD2410C radar (fallback and comparison)**<br>Hi-Link LD2410C; same family as the Apollo's LD2410B | 0 | 2 | [AliExpress, Shenzhen Hi-Link Power& Radar& Router Module Store (store 1103670545)](https://fr.aliexpress.com/item/1005007273671377.html) | [Amazon.fr (RUANI 5-pack)](https://www.amazon.fr/RUANI-HLK-LD2410C-Pr%C3%A9sence-D%C3%A9tection-Mouvement/dp/B0DCJLRLKJ) | €3.59 - €5.72 | live-checked 2026-10-15 | low to medium |
+| 4 | **Adafruit SHT45 breakout**<br>Adafruit product 5665 (Sensirion SHT45-AD1B, STEMMA QT) | 1 | 11 | [DigiKey.fr](https://www.digikey.fr/en/products/detail/adafruit-industries-llc/5665/17831054) | [Berrybase](https://www.berrybase.de/en/adafruit-sensirion-sht45-precision-temperature-humidity-sensor) | €13.18 - €14.90 | live-checked 2026-10-15 | low (Adafruit via distributor) |
+| 5 | **OPT3001 breakout (CJMCU-3001)**<br>Generic CJMCU-3001 board: 6 pins VCC, GND, SCL, SDA, INT, ADD; no LED | 1 | 13 | [AliExpress, SZ Discount Store (CJMCU-3001)](https://fr.aliexpress.com/item/1005007837370286.html) | [AliExpress, A+A+A Store (same CJMCU-3001 layout)](https://fr.aliexpress.com/item/1005006398173401.html) | €3.19 - €3.69 | live-checked 2026-10-15 | medium (generic board; check the TI marking) |
+| 6 | **JST-SH 4-pin cable for the SHT45**<br>STEMMA QT / Qwiic JST-SH plug at one end, female sockets (4397) or male pins (4209) at the other; 150 mm | 1 | 12 | [DigiKey.fr, Adafruit 4397 (female sockets)](https://www.digikey.fr/en/products/detail/adafruit-industries-llc/4397/10824270) | [DigiKey.fr, Adafruit 4209 (male header pins)](https://www.digikey.fr/en/products/detail/adafruit-industries-llc/4209/10230003) | €1.00 | live-checked 2026-10-15 | low |
+| 7 | **Adafruit SCD-40 CO2 breakout**<br>Adafruit product 5187 (Sensirion SCD40, STEMMA QT, onboard 3.3 V regulator and level shifters) | 1 | 11 | [DigiKey.fr](https://www.digikey.fr/en/products/detail/adafruit-industries-llc/5187/15194668) | [Berrybase (Adafruit SCD-41, product 5190)](https://www.berrybase.de/en/adafruit-scd-41-co2-sensor-400-5000-ppm-40ppm-5-temperature-and-humidity-sensor-3.3-5v) | €47.36 - €52.90 | live-checked 2026-10-15 | low (Adafruit via distributor); high for unbranded marketplace SCD4x |
+| 8 | **JST-SH 4-pin cable for the SCD-40**<br>as line 6, 150 mm | 1 | 11 | [DigiKey.fr, Adafruit 4397 (as line 6)](https://www.digikey.fr/en/products/detail/adafruit-industries-llc/4397/10824270) | [DigiKey.fr, Adafruit 4209 (as line 6)](https://www.digikey.fr/en/products/detail/adafruit-industries-llc/4209/10230003) | €1.00 | live-checked 2026-10-15 | low |
+| 9 | **4.7 kΩ resistor, 1-Wire pull-up**<br>1/4 W through-hole; pulls the 1-Wire line (D2 / GPIO4) up to 3V3 | 1 | 15 | [DigiKey.fr, Stackpole CF14JT4K70](https://www.digikey.fr/en/products/detail/stackpole-electronics-inc/CF14JT4K70/1741428) | [AliExpress resistor assortment](https://www.aliexpress.com/w/wholesale-resistor-kit-1-4w.html) | €0.03 | live-checked 2026-10-15 | low |
+| 10 | **JST-XH 3-pin header, 1-Wire socket**<br>JST XH series, 3 positions, 2.50 mm pitch, vertical through-hole header; mates with an XH 3-pin housing on a future probe cable | 1 | 12 | [DigiKey.fr, JST B3B-XH-A (455-2248-ND)](https://www.digikey.fr/en/products/detail/jst-sales-america-inc/B3B-XH-A/1651046) | [AliExpress, 230-piece 'XH2.54' 2-5 pin kit](https://fr.aliexpress.com/item/1005009454589816.html) | €0.12 | live-checked 2026-10-15 | low (genuine JST via distributor) |
+| 11 | **USB wall adapter, 5 V**<br>USB-A output, 5 V at least 1 A (2 A preferred), EU plug, CE marked, reputable brand | 1 | 10 | [Amazon.fr, Belkin WCB002VFWH (2 × USB-A, 12 W per port)](https://www.amazon.fr/dp/B086H34XZW) | [Amazon.fr, Hama 2 × USB-A 12 W (black)](https://www.amazon.fr/dp/B0F8KHS5H9) | €9.99 - €11.99 | live-checked 2026-10-15 | medium (electrical safety: avoid unbranded adapters) |
+| 12 | **USB-A to USB-C cable**<br>White, 2 m, USB-A to USB-C (Paul, 2026-10-15) | 1 | 10 | [Amazon.fr, PremiumCord USB-A to USB-C, white, 2 m](https://www.amazon.fr/dp/B08LH76K5K) | [Amazon.fr, 2-pack white 2 m USB-A to USB-C (brand SRLWMYI)](https://www.amazon.fr/dp/B0GSZGJLCF) | €3.99 - €4.50 | live-checked 2026-10-15 | low |
+| 13 | **Wiring consumables**<br>26 AWG silicone hookup wire (6 colours), heat-shrink assortment, 2 × 8 cm double-sided perfboard, 2.54 mm male and female header strips | — | 1 | [AliExpress (four listings, see notes)](https://fr.aliexpress.com/item/1005010394567962.html) | Amazon.fr (not checked) | €10.46 - €26.97 | live-checked 2026-10-15 | low |
+| 14 | **Fixings**<br>M2 self-tapping screws for board standoffs (assortment); wall screws and plugs (2 per unit) not priced | — | 1 | [Amazon.fr, VooGenzek 800-piece M2 self-tapping assortment](https://www.amazon.fr/dp/B09NDMWBC2) | local hardware shop | €9.99 | live-checked 2026-10-15 | low |
+| 15 | **PETG filament**<br>About 60 g per unit plus fit coupons: about 0.7 kg; plus a little natural PETG only if the printed lux window is chosen | — | 1 | Paul's stock |  | €0.00 - €22.00 | assumed: Paul's stock, not priced | low |
 
 <!-- parts:end -->
 
-Notes per line are in `docs/bom.csv` (column `notes`). The ones that matter before ordering:
+Notes per line are in `docs/bom.csv` (column `notes`); stock and delivery are in columns `stock` and `delivery`. The
+ones that matter before ordering:
 
-- **Line 2, LD2412:** the AliExpress price is US$3.59 converted at an assumed €0.86/$. Buy from Hi-Link's own store.
-  Check the firmware version in the ESPHome log on arrival: V1.26 has broken configuration commands (esphome #13366).
-- **Line 4, SHT45:** a DigiKey snippet showed an 18-week manufacturer lead time. Check stock before relying on it;
-  Berrybase and Botland are the alternatives.
-- **Line 5, OPT3001:** generic boards only, and no price found yet.
-  - Pick a listing whose photos show the ADDR pin or pad (it must go to VCC for address 0x45) and no LED on the
-    board.
-  - The MikroElektronika "Ambient 2 Click" is listed as a branded alternative, but its product code and size are not
-    verified.
-- **Line 7, SCD-40:** the DigiKey figure is about €39.40 ex-VAT plus 20 % (calculated; the product URL wasn't
-  surfaced). SparkFun SCD40 Qwiic (22395), Seeed Grove SCD41 and DFRobot SCD41 (Gotronic €49.90) are genuine
-  alternatives.
-
-- **Lines 9-10, 1-Wire socket:** a 4.7 kΩ pull-up and a JST-XH 3-pin header per unit. These are pennies; the
-  prices are placeholders until the live pass.
+- **Line 1, XIAO:** buy single boards. DigiKey's 3-pack (102010572) works out at €4.74 per board but is listed
+  without the U.FL antenna, which this board needs.
+- **Line 2, LD2412:**
+  - Pick the "HLK-LD2412 Module" variant; the listing opens on the LD2410B.
+  - Three AliExpress stores carry the Hi-Link name, and Hi-Link's own site links none of them, so "Hi-Link's
+    official store" is not confirmed.
+  - The cheapest offer delivered is store 211069 at €4.49 each for 12, but it ships separately at €13.23. The primary
+    (€4.89) ships free with the rest of order B.
+  - Domadoo has only 6 in stock.
+  - Check the firmware version in the ESPHome log on arrival: V1.26 has broken configuration commands
+    (esphome #13366).
+- **Line 4, SHT45:** the 18-week lead time in the snippet is gone: DigiKey has 1,345 in stock. Berrybase is out of
+  stock.
+- **Line 5, OPT3001:** a CJMCU-3001 board.
+  - Both listings' photos show the ADD pin broken out and no LED.
+  - ADD has a 10 kΩ resistor on the board whose direction (pull-up or pull-down) isn't visible. Measure it on arrival
+    and strap ADD to VCC for 0x45 either way [A].
+  - Board size isn't stated: measure it before the Phase 3 CAD.
+  - The MikroElektronika Ambient 2 Click is dropped: DigiKey has none in stock, and it costs €17.92 incl. VAT.
+- **Lines 6 and 8, STEMMA QT cables:** Adafruit 4397 (female sockets) or 4209 (male pins), both 150 mm and €1.00.
+  Pick the end when the Phase 2 wiring is fixed.
+- **Line 7, SCD-40:** DigiKey has 62 in stock, enough for 11.
+- **Line 10, JST-XH header:** the part number is confirmed as **JST B3B-XH-A** (DigiKey 455-2248-ND). It moved to the
+  DigiKey order (A): genuine JST, €0.12 each.
+- **Line 11, USB adapter (Paul decides):** the draft's €2.50 adapter is unbranded ("Générique") and 1 A, which fails
+  this line's own spec.
+  - The primary is now Belkin WCB002VFWH at €11.99, sold by Amazon.
+  - Hama's €9.99 adapter has only 3 in stock.
+  - If Paul accepts unbranded adapters, the saving is about €75-95 for the run [calc].
+- **Line 12, USB cable:** PremiumCord white 2 m at €3.99, shipped by a marketplace seller.
 
 ## 4. Cost
 
@@ -114,40 +138,46 @@ Prices are EUR per item including VAT. Ranges span the sources found and any ass
 
 | Build | Cost per unit | Price basis (lines) |
 |---|---|---|
-| Standard unit (option B with CO2) | €71.70 - €85.65 | 5 estimated, 5 assumed |
-| Standard unit + USB supply and cable | €76.20 - €95.65 | + 1 estimated, 1 assumed |
+| Standard unit (option B with CO2) | €75.90 - €85.53 | 10 live |
+| Standard unit + USB supply and cable | €89.88 - €102 | + 2 live |
 
 **Whole run** (10 units plus spares and consumables):
 
 | Group | Total | Price basis (lines) |
 |---|---|---|
-| Standard unit: option B with CO2 (MCU, radar, T/RH, lux, CO2, cables) | €803 - €975 | 5 estimated, 5 assumed |
-| USB supply and cable | €45.00 - €100 | 1 estimated, 1 assumed |
-| Consumables (one lot for the run) | €20.00 - €50.00 | 3 assumed |
-| **Total, before delivery and duty** | **€868 - €1,125** | |
+| Standard unit: option B with CO2 (MCU, radar, T/RH, lux, CO2, cables) | €860 - €973 | 10 live |
+| USB supply and cable | €140 - €165 | 2 live |
+| Consumables (one lot for the run) | €20.45 - €58.96 | 2 live, 1 assumed |
+| **Total, before delivery and duty** | **€1,020 - €1,197** | |
 
 **By order:**
 
 | Order | Total |
 |---|---|
-| A: distributor (DigiKey.fr or Mouser.fr) | €749 - €841 |
-| B: AliExpress | €69.40 - €153 |
-| C: Amazon.fr | €50.00 - €108 |
+| A: distributor (DigiKey.fr or Mouser.fr) | €757 - €841 |
+| B: AliExpress | €113 - €158 |
+| C: Amazon.fr | €150 - €175 |
 | From Paul's stock | €0.00 - €22.00 |
 
 <!-- totals:end -->
 
 Not included above:
 
-- **Delivery:**
-  - DigiKey.fr: free from €50 (some pages say €75). Below that, €18-25.
-  - AliExpress "Choice": free from €10 to France.
-  - Amazon.fr: depends on the seller.
-- **EU customs duty:** news reports say a flat €3 per goods category on parcels under €150 from outside the EU, since
-  2026-07-01, plus a handling fee from 2026-11-01 whose amount isn't set [S, unverified]. Expect about €6-12 on the
-  AliExpress order.
-- **VAT:** DigiKey and Mouser list prices ex-VAT. The snippet figures here add 20 %; check the cart, which should show
-  DDP (duties paid).
+- **Delivery** (shop pages, 2026-10-15):
+  - DigiKey.fr: free on EUR orders to France from €75, otherwise €25. Most packages arrive in 3 days. Order A is
+    about €760, so it ships free.
+  - AliExpress: the AliExpress-delivered listings chosen here ship free from €10, with delivery estimates of
+    20-25 October. Seller-shipped listings charge per item (for example €13.23 for 12 radars from store 211069).
+  - Amazon.fr: Standard delivery (3-5 working days) is free for Prime members; for others the fee is shown at
+    checkout. The product pages only offered free delivery on a first order.
+- **EU customs duty:** AliExpress pages say prices include VAT and duty is calculated at checkout. News reports say a
+  flat €3 per goods category on parcels under €150 from outside the EU, since 2026-07-01, plus a handling fee from
+  2026-11-01 whose amount isn't set [S, unverified]. With the primary listings, order B is about €118-134 [calc],
+  under €150. Expect about €6-12 of duty.
+- **VAT:** DigiKey lists prices ex-VAT and shows the with-VAT price on each product page; the figures here are the
+  with-VAT ones. DigiKey's Incoterms page says UPS and FedEx shipments to France may be DDP (duties paid by DigiKey),
+  while DHL is CPT (duty and VAT due on delivery). Pick UPS or FedEx and check the cart.
+- **Berrybase** shows prices with German VAT (19 %). French VAT (20 %) may apply at checkout [A].
 
 ## 5. The 1-Wire socket and future probes
 
@@ -180,32 +210,41 @@ bottle temperature in the cellar, floor versus ceiling, several racks. No probes
 
 | Order | What | Qty | Why this shop |
 |---|---|---|---|
-| **A: DigiKey.fr** (or Mouser.fr if stock is better) | XIAO ESP32-C3 (line 1) | 12 | Genuine parts from authorised distributors, one shipment, free delivery above €50 |
+| **A: DigiKey.fr** | XIAO ESP32-C3, single boards (line 1) | 12 | Genuine parts from authorised distributors, one shipment, free delivery from €75 (order is about €760) |
 | | Adafruit SHT45 (4) | 11 | |
 | | Adafruit SCD-40 (7) | 11 | |
-| | JST-SH 4-pin cables (6, 8) | 23 | |
-| | 4.7 kΩ resistors (9) | 15 | |
-| **B: AliExpress** (one order) | LD2412 (2) | 12 | From Hi-Link's official store |
-| | LD2410C (3) | 2 | From Hi-Link's official store |
-| | OPT3001 boards (5) | 13 | |
-| | JST-XH 3-pin headers (10) | 12 | |
+| | Adafruit 4397 or 4209 STEMMA QT cables (6, 8) | 23 | |
+| | Stackpole CF14JT4K70 4.7 kΩ resistors (9) | 15 | |
+| | JST B3B-XH-A headers (10) | 12 | Moved from order B: genuine JST |
+| **B: AliExpress** (one order) | LD2412, "HLK-LD2412 Module" variant (2) | 12 | Hi-Link-named store; AliExpress delivery, free from €10 |
+| | LD2410C (3) | 2 | Hi-Link-named store |
+| | CJMCU-3001 OPT3001 boards (5) | 13 | ADD pin, no LED in the photos |
 | | Wiring consumables (13) | 1 lot | |
-| **C: Amazon.fr** | USB wall adapters, EU plug (11) | 10 | Local, fast; pick a reputable brand for the adapters |
-| | USB-A to C cables (12) | 10 | |
-| | Fixings (14) | 1 lot | |
+| **C: Amazon.fr** | USB wall adapters, EU plug (11) | 10 | Belkin, sold by Amazon (or Paul's choice, section 3) |
+| | PremiumCord USB-A to C cables, white, 2 m (12) | 10 | |
+| | M2 screw assortment (14) | 1 | |
 | **Stock** | PETG filament (15) | about 0.7 kg | Colour still open |
 
 Notes on the shopping list:
 
-- **Order B:** one order keeps the €3 duty per goods category to a single parcel. AliExpress "Choice" items ship free
-  from €10 [S]. Other sellers, possibly including Hi-Link's store, set their own shipping; check it in the cart.
-- **EU fallback for the radars:** if the AliExpress lead time is a problem, buy the LD2412s from Domadoo or OpenELAB
-  (about €5-6.50 each).
+- **Order B:** one order keeps the €3 duty per goods category to a single parcel. The listings chosen are delivered
+  by AliExpress and ship free from €10 (pages checked 2026-10-15). Seller-shipped listings charge shipping per item;
+  check it in the cart.
+- **EU fallback for the radars:** if the AliExpress lead time is a problem, Domadoo has the LD2412 at €5.99, but only
+  6 in stock on 2026-10-15. OpenELAB and SmartHomeShop were not checked.
 
-## 8. Live price pass (to do before ordering)
+## 8. Live price pass
 
-This can be done by Paul, or by a Claude Code session running on Paul's own machine. That session isn't behind this
-cloud session's proxy. Steps:
+**Done on 2026-10-15** for lines 1-14 by a Claude Code session on Paul's Mac (branch `bom-live-prices`). Every shop
+page opened:
+
+- DigiKey.fr, Gotronic, Berrybase and Domadoo;
+- AliExpress (fr.aliexpress.com, prices in EUR, shipping to France);
+- Amazon.fr (delivering to Bordeaux, not signed in).
+
+The draft's gaps are filled: the OPT3001 board, the JST-SH cables, the JST-XH part number, the white 2 m cables and
+the SCD-40's DigiKey URL. Section 3 has the results. Stock and marketplace prices move, so repeat the pass with these
+steps if the order is placed more than a few days later:
 
 1. **Check out the branch.** Work on this PR's branch, and check that the PR isn't merged yet.
 2. **Price each line.** For each line in `docs/bom.csv`, open the primary and alternative product pages. Record in
@@ -220,12 +259,9 @@ cloud session's proxy. Steps:
    - Keep `eur_low` / `eur_high` as the cheapest and dearest credible offers.
    - If a page can't be read (JavaScript-only or bot-blocked pages are common on AliExpress, Amazon, DigiKey and
      Mouser), leave the line `estimated` and say so in `notes`. Never record a guess as live.
-4. **Fill the gaps.** Prices still missing:
-   - OPT3001 board (line 5): pick one with the ADDR pin broken out and no LED.
-   - JST-SH cables (6, 8): Adafruit or SparkFun part numbers.
-   - 4.7 kΩ resistors and JST-XH headers (9, 10): confirm the JST part number (B3B-XH-A is from memory).
-   - USB cables (12): white, 2 m, USB-A to USB-C.
-   - Adafruit SCD-40 (7): the DigiKey URL.
+4. **Check the choices still hold.** On AliExpress, select the right variant before reading the price (the listings
+   open on a different model). Raise the quantity to the run quantity to see seller shipping, which scales with
+   quantity.
 5. **Regenerate.** Re-run `python3 tools/bom_totals.py` and check that the tables in sections 3 and 4 changed as
    expected.
 6. **Commit.** Commit with a message that lists which lines were live-checked, and push to the same branch.
@@ -246,8 +282,10 @@ them blocks ordering:
 
 ## 10. Sources
 
-- **Prices, URLs and shipping:** search-engine snippets gathered on 2026-10-15. No shop page could be opened from this
-  session. The research notes behind each figure are summarised in the `notes` column of `docs/bom.csv`.
+- **Prices, URLs, stock and shipping:** the shop pages themselves, read on 2026-10-15 (section 8). Shipping rules:
+  DigiKey.fr "Delivery Time and Cost" and "Incoterms" help pages; Gotronic product page (Livraison tab); Berrybase
+  "Payment / Dispatch"; Domadoo "Delivery"; Amazon.fr "Delivery Costs and Times in Mainland France and Monaco". The
+  notes behind each figure are in the `notes` column of `docs/bom.csv`.
 - **Apollo SCD40 module connector:** Apollo docs, `docs/products/msr2/addons/adding-co2-to-msr-2.md` in
   https://github.com/ApolloAutomation/docs.
 - **Adafruit SCD-4x board** (regulator and level shifters): https://github.com/adafruit/Adafruit-SCD-4x-PCB README.

@@ -4,6 +4,28 @@ A dated log, most recent first. Each entry says what was decided, why, and on wh
 wrong, it is corrected in place with "Correction: ..." rather than deleted. "Proposed" entries wait for Paul's review
 of the PR that adds them.
 
+## 2026-10-15: part choices from the live price pass (proposed)
+
+Source: the shop pages, read on 2026-10-15 from a session on Paul's Mac (`docs/bom.md` section 8). Details and URLs
+are in `docs/bom.csv`.
+
+- **OPT3001 board: generic CJMCU-3001.**
+  - Why: the photos on two AliExpress listings show the ADD pin broken out (needed for address 0x45) and no LED.
+  - Rejected: the cheaper SZFYDOSH board, which sets the address with solder pads (no ADDR pin) and had only 13 in
+    stock; the MikroElektronika Ambient 2 Click, out of stock at DigiKey and €17.92 incl. VAT.
+  - Open: the board size isn't stated, and ADD's 10 kΩ resistor may pull up or down. Measure both on arrival [A].
+- **1-Wire header: genuine JST B3B-XH-A from DigiKey,** not an AliExpress kit.
+  - The part number is confirmed on DigiKey (XH series, 3 positions, 2.50 mm, vertical through-hole).
+  - It costs €0.12 and rides in the DigiKey order anyway.
+  - AliExpress "XH" kits are labelled 2.54 mm, while genuine XH is 2.50 mm. A future genuine XH probe housing mates
+    best with a genuine header.
+- **XIAO ESP32-C3: single boards,** not DigiKey's 3-pack. The 3-pack is €4.74 per board, but DigiKey lists it without
+  the U.FL antenna, which this board needs.
+- **USB wall adapter: branded (Belkin WCB002VFWH, €11.99) as the default; Paul decides.**
+  - The draft's €2.50 adapter is brand "Générique" and 1 A, which fails the BOM line's own "reputable brand" rule.
+  - No branded adapter under €9.99 was found on Amazon.fr, and the €9.99 Hama had only 3 in stock.
+  - Keeping unbranded adapters would save about €75-95 for the run [calc].
+
 ## 2026-10-15: USB cable (decided)
 
 - **Cable: white, 2 m, USB-A to USB-C, the same for every unit** (Paul). The USB-A end matches the USB-A wall adapters
