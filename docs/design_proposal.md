@@ -515,12 +515,13 @@ boards is [A] until checked against the vendor pinouts in Phase 2.
 | XIAO pin | GPIO | Connects to | Why this pin |
 |---|---|---|---|
 | 5V | — | LD2412 +5V | The radar runs on 5 V, straight from USB. This keeps its 90 mA off the XIAO's regulator |
-| GND | — | LD2412 GND, OPT3001 GND, SHT45 GND | |
-| 3V3 | — | OPT3001 VCC (and its ADD pin, giving address 0x45), SHT45 VIN | I2C sensors at 3.3 V logic |
-| D4 | GPIO6 | SDA: OPT3001, SHT45 | The XIAO's I2C pins [E]. The C3 has one I2C bus in ESPHome |
-| D5 | GPIO7 | SCL: OPT3001, SHT45 | |
+| GND | — | LD2412, OPT3001, SHT45, SCD-40, 1-Wire socket | |
+| 3V3 | — | OPT3001 VCC (and its ADD pin, giving address 0x45), SHT45 VIN, SCD-40 VIN, 1-Wire socket and its 4.7 kΩ pull-up | I2C sensors at 3.3 V logic. The SCD-40 (standard since Phase 1) is fed from 3V3 until Phase 2 checks 5 V and the regulator headroom [A] |
+| D4 | GPIO6 | SDA: OPT3001, SHT45, SCD-40 (0x62) | The XIAO's I2C pins [E]. The C3 has one I2C bus in ESPHome |
+| D5 | GPIO7 | SCL: OPT3001, SHT45, SCD-40 | |
 | D6 | GPIO21 | LD2412 RX (ESP TX) | The XIAO's UART pins [E]. ESPHome's logger on the C3 defaults to USB-Serial-JTAG, so the UART is free [E] |
 | D7 | GPIO20 | LD2412 TX (ESP RX) | The radar's UART runs at 3.3 V logic [D], so no level shifter is needed |
+| D2 | GPIO4 | 1-Wire socket (JST-XH 3-pin), 4.7 kΩ pull-up to 3V3 | Added in Phase 1 (`docs/design_decisions.md`, 2026-10-15). Not a strapping pin [E] |
 | D0, D8, D9 | GPIO2, 8, 9 | Unused | Strapping pins [D]; left free |
 | U.FL | — | FPC antenna | |
 

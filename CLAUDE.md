@@ -14,8 +14,8 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
 - **Phase 0: done.** `docs/design_proposal.md` was approved and merged (PR #1). Option B as recommended; see
   `docs/design_decisions.md`.
 - **Phase 1 (current): BOM and sourcing,** `docs/bom.md` and `docs/bom.csv`.
-  - Run of 10 identical units plus spares, all with CO2 as standard and a USB supply. The cellar gets a standard
-    unit; there is no separate cellar design.
+  - Run of 10 identical units plus spares, all with CO2 as standard, a 1-Wire probe socket and a USB supply. The
+    cellar gets a standard unit; there is no separate cellar design.
   - Prices are not live-checked yet. A live price pass is described in `docs/bom.md` section 8.
   - Paul orders; Claude never orders anything.
 - Phase 2: firmware (`firmware/`, ESPHome packages) and CI (`.github/workflows/`).
@@ -47,8 +47,10 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
   - no separate cellar design: the cellar gets a standard unit.
 - The Apollo SCD40 add-on module uses a proprietary mezzanine connector (Apollo docs), so it isn't used. The Adafruit
   SCD-40 (5187) has a 3.3 V regulator and level shifters (Adafruit-SCD-4x-PCB README).
-- If DS18B20 probes are ever added: buy them only from authorised distributors. Every eBay and AliExpress probe in
-  the cpetrich/counterfeit_DS18B20 study was fake.
+- Every unit has a **1-Wire socket**: XIAO D2 / GPIO4, a 4.7 kΩ pull-up to 3V3, and a JST-XH 3-pin header, for
+  optional DS18B20 probes later. The firmware package is off by default; the case gets a cable knock-out.
+- Future DS18B20 probes: buy the chips only from authorised distributors. Every eBay and AliExpress probe in the
+  cpetrich/counterfeit_DS18B20 study was fake.
 - Apollo's MSR-2 firmware (`github.com/ApolloAutomation/MSR-2`, `Integrations/ESPHome/Core.yaml`) subtracts a default
   `DPS Temperature Offset` of **14.54 °C** from the DPS310, and its LTR390 updates every 60 s by default with an
   optional 5 lx "Reduce DB Reporting" delta filter.

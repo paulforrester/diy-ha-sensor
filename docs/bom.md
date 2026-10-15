@@ -4,7 +4,7 @@
 - **Status:** draft for Paul's review. **Nothing is ordered**; Paul buys everything.
 - **Prices:** **none is live-checked yet.** This cloud session can't reach any shop (proxy 403, domains in
   `docs/design_proposal.md` section 9). Every price is a search-engine snippet or an assumption, and is labelled as
-  such. A live price pass (section 7) replaces them before Paul orders.
+  such. A live price pass (section 8) replaces them before Paul orders.
 - **Source of truth:** `docs/bom.csv`. The parts table and the cost tables below are generated from it by
   `python3 tools/bom_totals.py`. Edit the CSV, then re-run the script; don't edit those tables by hand.
 
@@ -19,6 +19,8 @@
   - OPT3001 lux sensor;
   - the two-part case with the separate climate pod;
 - a CO2 sensor as standard, so every unit is interchangeable (Paul's decision);
+- a 1-Wire socket for optional remote temperature probes (DS18B20), so probes can be added later without changing
+  the unit (Paul's decision; section 5);
 - its own USB wall adapter and cable.
 
 **Estimated cost:**
@@ -42,7 +44,7 @@ a run whose point is accurate, interchangeable units.
 
 ## 2. What changed since the proposal
 
-- **Quantities:** a run of 10, not 4. Some units may go to the US; only the USB wall adapter differs (section 5).
+- **Quantities:** a run of 10, not 4. Some units may go to the US; only the USB wall adapter differs (section 6).
 - **CO2 is standard on every unit** (Paul, 2026-10-15).
   - The proposal's cheapest genuine option, the Apollo module, is out (connector, above), so the Adafruit SCD-40 is
     the primary.
@@ -53,6 +55,8 @@ a run whose point is accurate, interchangeable units.
   - Phase 2 checks Adafruit's schematic, and checks the XIAO's 3.3 V regulator headroom. The XIAO wiki states both
     500 mA and 700 mA [G]. The ESP32-C3 Wi-Fi peak (350 mA) plus the SCD40 peak (175 mA) is about 525 mA [D] [A].
 - **No separate cellar design.** The cellar gets a standard unit like every other room.
+- **1-Wire socket on every unit** (Paul, 2026-10-15). It costs well under €1 per unit [A], and it keeps the units
+  interchangeable while leaving room for remote temperature probes later (section 5).
 - **USB supply and cable:** one each per unit (Paul's answer). A USB-A supply with an A-to-C cable avoids USB-C power
   negotiation questions entirely.
 
@@ -72,11 +76,13 @@ The run quantity is the per-unit quantity × 10, plus spares.
 | 6 | **JST-SH 4-pin cable for the SHT45**<br>STEMMA QT / Qwiic plug at one end, bare wire or female sockets at the other; 100-150 mm | 1 | 12 | DigiKey.fr (Adafruit or SparkFun cable) | [AliExpress (generic JST-SH 1.0 mm 4-pin pigtails)](https://www.aliexpress.com/w/wholesale-jst-sh-4-pin-cable.html) | €1.00 - €1.50 | assumed: no price found | low |
 | 7 | **Adafruit SCD-40 CO2 breakout**<br>Adafruit product 5187 (Sensirion SCD40, STEMMA QT, onboard 3.3 V regulator and level shifters) | 1 | 11 | DigiKey.fr | [Berrybase (Adafruit SCD-41, product 5190)](https://www.berrybase.de/en/adafruit-scd-41-co2-sensor-400-5000-ppm-40ppm-5-temperature-and-humidity-sensor-3.3-5v) | €47.28 - €52.90 | estimated: search snippet 2026-10-15 | low (Adafruit via distributor); high for unbranded marketplace SCD4x |
 | 8 | **JST-SH 4-pin cable for the SCD-40**<br>as line 6, 100 mm | 1 | 11 | as line 6 | as line 6 | €1.00 - €1.50 | assumed: no price found | low |
-| 9 | **USB wall adapter, 5 V**<br>USB-A output, 5 V at least 1 A (2 A preferred), EU plug, CE marked, reputable brand | 1 | 10 | [Amazon.fr (multipack)](https://www.amazon.fr/Chargeur-Adaptateur-Compatible-Smartwatch-%C3%89couteurs/dp/B0CLMBHCVF) | local retailer | €2.50 - €6.00 | estimated: search snippet 2026-10-15 | medium (electrical safety: avoid unbranded adapters) |
-| 10 | **USB-A to USB-C cable**<br>1.5-2 m, colour to suit the rooms | 1 | 10 | Amazon.fr (multipack) | local retailer | €2.00 - €4.00 | assumed: no price found | low |
-| 11 | **Wiring consumables**<br>26 AWG silicone hookup wire (6 colours), heat-shrink assortment, small perfboard strips, 2.54 mm headers | — | 1 | AliExpress | Amazon.fr | €15.00 - €20.00 | assumed: no price found | low |
-| 12 | **Fixings**<br>M2 x 6 mm self-tapping screws for board standoffs; wall screws and plugs (2 per unit) | — | 1 | Amazon.fr | local hardware shop | €5.00 - €8.00 | assumed: no price found | low |
-| 13 | **PETG filament**<br>About 60 g per unit plus fit coupons: about 0.7 kg; plus a little natural PETG only if the printed lux window is chosen | — | 1 | Paul's stock |  | €0.00 - €22.00 | assumed: no price found | low |
+| 9 | **4.7 kΩ resistor, 1-Wire pull-up**<br>1/4 W through-hole; pulls the 1-Wire line (D2 / GPIO4) up to 3V3 | 1 | 15 | DigiKey.fr (with order A) | [AliExpress resistor assortment](https://www.aliexpress.com/w/wholesale-resistor-kit-1-4w.html) | €0.05 - €0.20 | assumed: no price found | low |
+| 10 | **JST-XH 3-pin header, 1-Wire socket**<br>2.5 mm pitch, through-hole, straight; mates with an XH 3-pin housing on a future probe cable | 1 | 12 | [AliExpress (JST-XH connector kit)](https://www.aliexpress.com/w/wholesale-jst-xh-2.5mm-connector-kit.html) | DigiKey.fr (genuine JST B3B-XH-A) | €0.10 - €0.40 | assumed: no price found | low |
+| 11 | **USB wall adapter, 5 V**<br>USB-A output, 5 V at least 1 A (2 A preferred), EU plug, CE marked, reputable brand | 1 | 10 | [Amazon.fr (multipack)](https://www.amazon.fr/Chargeur-Adaptateur-Compatible-Smartwatch-%C3%89couteurs/dp/B0CLMBHCVF) | local retailer | €2.50 - €6.00 | estimated: search snippet 2026-10-15 | medium (electrical safety: avoid unbranded adapters) |
+| 12 | **USB-A to USB-C cable**<br>1.5-2 m, colour to suit the rooms | 1 | 10 | Amazon.fr (multipack) | local retailer | €2.00 - €4.00 | assumed: no price found | low |
+| 13 | **Wiring consumables**<br>26 AWG silicone hookup wire (6 colours), heat-shrink assortment, small perfboard strips, 2.54 mm headers | — | 1 | AliExpress | Amazon.fr | €15.00 - €20.00 | assumed: no price found | low |
+| 14 | **Fixings**<br>M2 x 6 mm self-tapping screws for board standoffs; wall screws and plugs (2 per unit) | — | 1 | Amazon.fr | local hardware shop | €5.00 - €8.00 | assumed: no price found | low |
+| 15 | **PETG filament**<br>About 60 g per unit plus fit coupons: about 0.7 kg; plus a little natural PETG only if the printed lux window is chosen | — | 1 | Paul's stock |  | €0.00 - €22.00 | assumed: no price found | low |
 
 <!-- parts:end -->
 
@@ -95,6 +101,9 @@ Notes per line are in `docs/bom.csv` (column `notes`). The ones that matter befo
   surfaced). SparkFun SCD40 Qwiic (22395), Seeed Grove SCD41 and DFRobot SCD41 (Gotronic €49.90) are genuine
   alternatives.
 
+- **Lines 9-10, 1-Wire socket:** a 4.7 kΩ pull-up and a JST-XH 3-pin header per unit. These are pennies; the
+  prices are placeholders until the live pass.
+
 ## 4. Cost
 
 Prices are EUR per item including VAT. Ranges span the sources found and any assumption.
@@ -105,24 +114,24 @@ Prices are EUR per item including VAT. Ranges span the sources found and any ass
 
 | Build | Cost per unit | Price basis (lines) |
 |---|---|---|
-| Standard unit (option B with CO2) | €71.55 - €85.05 | 5 estimated, 3 assumed |
-| Standard unit + USB supply and cable | €76.05 - €95.05 | + 1 estimated, 1 assumed |
+| Standard unit (option B with CO2) | €71.70 - €85.65 | 5 estimated, 5 assumed |
+| Standard unit + USB supply and cable | €76.20 - €95.65 | + 1 estimated, 1 assumed |
 
 **Whole run** (10 units plus spares and consumables):
 
 | Group | Total | Price basis (lines) |
 |---|---|---|
-| Standard unit: option B with CO2 (MCU, radar, T/RH, lux, CO2, cables) | €802 - €967 | 5 estimated, 3 assumed |
+| Standard unit: option B with CO2 (MCU, radar, T/RH, lux, CO2, cables) | €803 - €975 | 5 estimated, 5 assumed |
 | USB supply and cable | €45.00 - €100 | 1 estimated, 1 assumed |
 | Consumables (one lot for the run) | €20.00 - €50.00 | 3 assumed |
-| **Total, before delivery and duty** | **€867 - €1,117** | |
+| **Total, before delivery and duty** | **€868 - €1,125** | |
 
 **By order:**
 
 | Order | Total |
 |---|---|
-| A: distributor (DigiKey.fr or Mouser.fr) | €748 - €838 |
-| B: AliExpress | €68.20 - €148 |
+| A: distributor (DigiKey.fr or Mouser.fr) | €749 - €841 |
+| B: AliExpress | €69.40 - €153 |
 | C: Amazon.fr | €50.00 - €108 |
 | From Paul's stock | €0.00 - €22.00 |
 
@@ -140,12 +149,34 @@ Not included above:
 - **VAT:** DigiKey and Mouser list prices ex-VAT. The snippet figures here add 20 %; check the cart, which should show
   DDP (duties paid).
 
-## 5. Units that go to the US
+## 5. The 1-Wire socket and future probes
+
+Every unit gets a socket for DS18B20 temperature probes on a cable. These are for readings away from the unit: wine or
+bottle temperature in the cellar, floor versus ceiling, several racks. No probes are bought now.
+
+- **On the unit:**
+  - XIAO **D2 / GPIO4**, a free pin that is not a strapping pin (ESPHome's C3 strapping pins are GPIO2, 8 and 9);
+  - a **4.7 kΩ pull-up to 3V3**;
+  - a **JST-XH 3-pin header** inside the main body;
+  - a cable knock-out in the case (Phase 3).
+- **Firmware:** an optional ESPHome package (`one_wire` with the `gpio` platform, plus `dallas_temp`; both in
+  2026.9.1), off by default (Phase 2).
+- **Adding a probe later:**
+  - Buy **genuine DS18B20+ chips from an authorised distributor** (DigiKey, Mouser, Farnell, RS) and build the probe:
+    3-core cable, adhesive-lined heat shrink, optionally a stainless sleeve, and a pre-crimped XH 3-pin pigtail.
+    Marketplace probes are not an option: a 2019 study bought DS18B20s from over 70 vendors, and every probe from eBay
+    and AliExpress contained a counterfeit chip (github.com/cpetrich/counterfeit_DS18B20).
+  - On first boot, check each probe's ROM code in the ESPHome log against the genuine pattern `28-xx-xx-xx-xx-00-00-xx`
+    from the same study.
+- **Open for bring-up:** how long a cable the 4.7 kΩ pull-up handles reliably is not established here. It is checked
+  when the first probe is added [A].
+
+## 6. Units that go to the US
 
 - Use a US-plug 5 V USB-A adapter, bought in the US; everything else is the same.
 - Those units need their own Wi-Fi credentials and DNS names; the firmware's substitutions handle that (Phase 2).
 
-## 6. Shopping list by order
+## 7. Shopping list by order
 
 | Order | What | Qty | Why this shop |
 |---|---|---|---|
@@ -153,14 +184,16 @@ Not included above:
 | | Adafruit SHT45 (4) | 11 | |
 | | Adafruit SCD-40 (7) | 11 | |
 | | JST-SH 4-pin cables (6, 8) | 23 | |
+| | 4.7 kΩ resistors (9) | 15 | |
 | **B: AliExpress** (one order) | LD2412 (2) | 12 | From Hi-Link's official store |
 | | LD2410C (3) | 2 | From Hi-Link's official store |
 | | OPT3001 boards (5) | 13 | |
-| | Wiring consumables (11) | 1 lot | |
-| **C: Amazon.fr** | USB wall adapters, EU plug (9) | 10 | Local, fast; pick a reputable brand for the adapters |
-| | USB-A to C cables (10) | 10 | |
-| | Fixings (12) | 1 lot | |
-| **Stock** | PETG filament (13) | about 0.7 kg | Colour still open |
+| | JST-XH 3-pin headers (10) | 12 | |
+| | Wiring consumables (13) | 1 lot | |
+| **C: Amazon.fr** | USB wall adapters, EU plug (11) | 10 | Local, fast; pick a reputable brand for the adapters |
+| | USB-A to C cables (12) | 10 | |
+| | Fixings (14) | 1 lot | |
+| **Stock** | PETG filament (15) | about 0.7 kg | Colour still open |
 
 Notes on the shopping list:
 
@@ -169,7 +202,7 @@ Notes on the shopping list:
 - **EU fallback for the radars:** if the AliExpress lead time is a problem, buy the LD2412s from Domadoo or OpenELAB
   (about €5-6.50 each).
 
-## 7. Live price pass (to do before ordering)
+## 8. Live price pass (to do before ordering)
 
 This can be done by Paul, or by a Claude Code session running on Paul's own machine. That session isn't behind this
 cloud session's proxy. Steps:
@@ -190,7 +223,8 @@ cloud session's proxy. Steps:
 4. **Fill the gaps.** Prices still missing:
    - OPT3001 board (line 5): pick one with the ADDR pin broken out and no LED.
    - JST-SH cables (6, 8): Adafruit or SparkFun part numbers.
-   - USB cables (10): 1.5-2 m.
+   - 4.7 kΩ resistors and JST-XH headers (9, 10): confirm the JST part number (B3B-XH-A is from memory).
+   - USB cables (12): 1.5-2 m.
    - Adafruit SCD-40 (7): the DigiKey URL.
 5. **Regenerate.** Re-run `python3 tools/bom_totals.py` and check that the tables in sections 3 and 4 changed as
    expected.
@@ -198,7 +232,7 @@ cloud session's proxy. Steps:
 7. **Final check by Paul.** The cart is the only exact figure for delivery, VAT and duty, so Paul checks it before
    paying.
 
-## 8. Open questions
+## 9. Open questions
 
 1. **Cable length and colour:** the USB cable length and colour per room. 1.5-2 m is assumed.
 2. **From the proposal, still open (section 10 there):**
@@ -211,7 +245,7 @@ cloud session's proxy. Steps:
 
    None of these blocks ordering.
 
-## 9. Sources
+## 10. Sources
 
 - **Prices, URLs and shipping:** search-engine snippets gathered on 2026-10-15. No shop page could be opened from this
   session. The research notes behind each figure are summarised in the `notes` column of `docs/bom.csv`.
@@ -219,5 +253,8 @@ cloud session's proxy. Steps:
   https://github.com/ApolloAutomation/docs.
 - **Adafruit SCD-4x board** (regulator and level shifters): https://github.com/adafruit/Adafruit-SCD-4x-PCB README.
 - **Adafruit SHT4x boards:** https://github.com/adafruit/Adafruit-SHT40-PCB README (products 4885, 5776, 5665).
+- **DS18B20 counterfeits and the ROM-pattern check:** https://github.com/cpetrich/counterfeit_DS18B20 README.
+- **ESPHome 2026.9.1:** `one_wire`, `gpio` 1-Wire platform, `dallas_temp`, and the ESP32-C3 strapping pins
+  (`esp32/gpio_esp32_c3.py`), checked in the installed source.
 - **XIAO ESP32-C3 regulator rating** (500 mA and 700 mA both stated): Seeed wiki source on GitHub, as cited in
   `docs/design_proposal.md` section 11.

@@ -62,8 +62,11 @@ Nothing has been measured with calipers yet. **[A]** marks an assumption.
   join them on a small perfboard strip or with splices. Phase 3 decides which.
 - **USB-C depth.** The socket sits about 2.5 mm behind the outer face of the right wall. Whether a typical plug reaches
   it is a fit-coupon question.
-- **Not included:** the CO2 variant, the wall-mount adapters (corner wedge, shelf foot) and the radome and lux-window
-  test coupons. They come in Phase 3.
+- **Not included:** these come in Phase 3:
+  - the CO2 sensor, now standard on every unit;
+  - the 1-Wire socket and its cable knock-out (added in Phase 1);
+  - the wall-mount adapters (corner wedge, shelf foot);
+  - the radome and lux-window test coupons.
 
 ## Regenerate and check
 

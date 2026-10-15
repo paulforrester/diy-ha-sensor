@@ -4,6 +4,31 @@ A dated log, most recent first. Each entry says what was decided, why, and on wh
 wrong, it is corrected in place with "Correction: ..." rather than deleted. "Proposed" entries wait for Paul's review
 of the PR that adds them.
 
+## 2026-10-15: 1-Wire socket on every unit (decided)
+
+Source: Paul, in the Phase 1 session, after discussing what dropping the DS18B20 probes would cost.
+
+- **What:** every unit gets a 1-Wire socket, so remote DS18B20 temperature probes can be added later. The units stay
+  identical and interchangeable. No probes are bought now.
+- **Why:** probes are the only way to measure temperature away from the unit:
+  - wine or bottle temperature in the cellar (slow, like the wine, instead of the air that jumps when the door
+    opens);
+  - floor versus ceiling;
+  - several racks.
+
+  A probe on a cable is also completely clear of the unit's own heat, which makes it a temperature-only fallback if
+  the climate pod misses ±0.5 °C. The socket costs well under €1 per unit [A].
+- **How:**
+  - XIAO D2 / GPIO4, not a strapping pin (ESPHome 2026.9.1 lists GPIO2, 8 and 9 for the C3);
+  - a 4.7 kΩ pull-up to 3V3;
+  - a JST-XH 3-pin header inside the main body;
+  - a cable knock-out in the case (Phase 3);
+  - an optional ESPHome package (`one_wire` + `dallas_temp`), off by default (Phase 2).
+- **Probes, when wanted:**
+  - genuine DS18B20+ chips from an authorised distributor only, built into probes, each with a pre-crimped XH pigtail;
+  - a ROM-code check on arrival (cpetrich/counterfeit_DS18B20).
+- **Open:** the longest reliable cable with a 4.7 kΩ pull-up is checked when the first probe is added [A].
+
 ## 2026-10-15: CO2 standard on every unit; no separate cellar design (decided)
 
 Source: Paul's message in the Phase 1 session, after PR #2 opened.
@@ -31,7 +56,8 @@ Source: Paul's message in the Phase 1 session, after PR #2 opened.
   bought on eBay and AliExpress counterfeit (github.com/cpetrich/counterfeit_DS18B20). The same study gives a ROM-code
   check for arrival.
   - Correction (2026-10-15): dropped. There is no separate cellar design, and the cellar gets a standard unit (entry
-    above). The sourcing rule still stands if probes are ever added.
+    above). The sourcing rule still stands for future probes, which every unit can now take through its 1-Wire
+    socket (entry at the top).
 - **Spares:**
   - +2 for the cheap parts (XIAO, LD2412, the SHT45's JST cable);
   - +3 for the OPT3001 boards, whose ADDR strap is rework;
