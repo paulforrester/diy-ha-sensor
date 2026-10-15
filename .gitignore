@@ -1,0 +1,20 @@
+# ESPHome secrets: never commit. Copy firmware/secrets.example.yaml to firmware/secrets.yaml.
+secrets.yaml
+
+# ESPHome build output and caches
+.esphome/
+**/.esphome/
+.pioenvs/
+.piolibdeps/
+
+# Python tooling
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Editors and OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
