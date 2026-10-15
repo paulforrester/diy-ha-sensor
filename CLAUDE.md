@@ -15,7 +15,9 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
   `docs/design_decisions.md`.
 - **Phase 1: done** (PR #2). `docs/bom.md` and `docs/bom.csv`.
   - Run of 10 identical units plus spares, all with CO2 as standard, a 1-Wire probe socket and a USB supply.
-  - Prices are not live-checked yet. Paul is having a local Claude Code session do the live price pass as its own PR.
+  - Prices live-checked on 2026-10-15 (PR #4; lines 1-14, PETG is Paul's stock): about €1,020-1,200 for the run
+    before delivery and duty. Stock and marketplace prices move; `docs/bom.md` section 8 says how to repeat the pass.
+  - Open for Paul: branded USB adapters (Belkin, €11.99) versus the unbranded €2.50 ones the draft had (BOM line 11).
   - Paul orders; Claude never orders anything.
 - **Phase 2 (current): firmware and CI.**
   - `firmware/`: ESPHome packages, variants and device files. See `firmware/README.md`.
@@ -64,8 +66,14 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
 - `esphome compile` can't run in the cloud session: `api.registry.platformio.org` and `api.registry.nm1.platformio.org`
   are blocked by the proxy (2026-10-15). `esphome config` works; GitHub Actions compiles.
 - Vendor and retailer sites (Sensirion, TI, Vishay, Hi-Link, Espressif, Seeed, Adafruit, esphome.io, all shops) were
-  blocked by the session proxy on 2026-10-15. GitHub and PyPI work. Datasheets were read from GitHub mirrors listed in
-  `docs/design_proposal.md` section 11; ESPHome docs from `github.com/esphome/esphome-docs` (branch `current`).
+  blocked by the cloud session proxy on 2026-10-15. GitHub and PyPI work. Datasheets were read from GitHub mirrors
+  listed in `docs/design_proposal.md` section 11; ESPHome docs from `github.com/esphome/esphome-docs` (branch
+  `current`). A Claude Code session on Paul's Mac (desktop app, built-in browser) can open the shops: DigiKey.fr,
+  Gotronic, Berrybase, Domadoo, AliExpress, Amazon.fr and hlktech.net all loaded there on 2026-10-15.
+- BOM part choices from the live pass (2026-10-15): OPT3001 = generic CJMCU-3001 board (ADD pin, no LED in the
+  photos); STEMMA QT cables = Adafruit 4397 (female) or 4209 (male pins), 150 mm; 1-Wire header = JST B3B-XH-A
+  (DigiKey 455-2248-ND, part number confirmed); pull-up = Stackpole CF14JT4K70. Three AliExpress stores use the
+  Hi-Link name and Hi-Link's site links none, so "Hi-Link's official store" is unconfirmed.
 
 ## House rules (from Paul; follow them)
 

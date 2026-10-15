@@ -20,7 +20,7 @@ MSR-2 reads several degrees high and has no humidity. The Aqara FP300 reports sl
 firmware and CI are in review. Nothing is built yet.
 
 - [`docs/design_proposal.md`](docs/design_proposal.md): the approved design, its reasoning and risks.
-- [`docs/bom.md`](docs/bom.md): parts, quantities, sources and costs (prices not yet live-checked).
+- [`docs/bom.md`](docs/bom.md): parts, quantities, sources and costs (prices live-checked 2026-10-15).
 - [`firmware/README.md`](firmware/README.md): the ESPHome packages, pin map, entities and how to flash.
 - [`docs/design_decisions.md`](docs/design_decisions.md): the decision log.
 - Concept renders, STLs you can rotate on GitHub, and the wiring diagram are in proposal section 6.0 and
@@ -29,7 +29,7 @@ firmware and CI are in review. Nothing is built yet.
 | Phase | Content | State |
 |---|---|---|
 | 0 | Questions and design proposal | Done (PR #1) |
-| 1 | Bill of materials and sourcing | Done (PR #2); live prices pending |
+| 1 | Bill of materials and sourcing | Done (PR #2); live prices in PR #4 |
 | 2 | ESPHome firmware and CI | In review |
 | 3 | OpenSCAD enclosure, fit-test coupons first | Not started |
 | 4 | Build, calibration, validation and HA docs | Not started |
