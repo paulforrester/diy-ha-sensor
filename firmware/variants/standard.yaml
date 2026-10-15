@@ -1,0 +1,11 @@
+# Standard unit (option B with CO2, docs/design_decisions.md 2026-10-15):
+#   XIAO ESP32-C3, HLK-LD2412 radar, SHT45 in the climate pod, OPT3001 lux, SCD40 CO2, 1-Wire socket (unused unless
+#   the optional onewire_probe package is added).
+# A device file sets the substitutions in packages/base.yaml and includes this file.
+packages:
+  base: !include ../packages/base.yaml
+  i2c: !include ../packages/i2c.yaml
+  climate: !include ../packages/climate_sht45.yaml
+  lux: !include ../packages/lux_opt3001.yaml
+  co2: !include ../packages/co2_scd40.yaml
+  radar: !include ../packages/radar_ld2412.yaml

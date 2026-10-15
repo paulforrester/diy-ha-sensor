@@ -1,0 +1,11 @@
+# The one I2C bus. The ESP32-C3 has a single I2C controller in ESPHome ("NUM": 1 in components/i2c), so every
+# sensor shares it: SHT45 0x44, OPT3001 0x45 (ADDR strapped to VCC), SCD-40 0x62.
+#
+# 100 kHz is conservative: the SHT45 sits on a 100-150 mm cable in the climate pod. Every part allows more (SCD4x
+# datasheet v1.7: 400 kHz max; SHT4x: up to fast mode plus; OPT3001: fast mode).
+i2c:
+  id: i2c_main
+  sda: GPIO6      # XIAO D4
+  scl: GPIO7      # XIAO D5
+  frequency: 100kHz
+  scan: true      # the boot log lists the addresses found: check 0x44, 0x45 and 0x62 on bring-up

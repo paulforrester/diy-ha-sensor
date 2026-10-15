@@ -1,0 +1,65 @@
+# Temperature and humidity: Sensirion SHT45 on the Adafruit breakout, alone in the climate pod.
+#
+# - Reports every 30 s. Every reading is published, so a silent sensor shows as stale in Home Assistant.
+# - Calibration offsets are Home Assistant number entities, kept across reboots.
+# - The SHT4x heater stays off (heater_max_duty defaults to 0.0): the heater invalidates the readings while it runs.
+# - The chip's serial number is printed in the boot log (ESPHome sht4x reads it with command 0x89). Use it for the
+#   counterfeit check in docs/design_proposal.md section 4.4.
+
+number:
+  - platform: template
+    id: sht_temperature_offset
+    name: Temperature offset
+    icon: mdi:thermometer-plus
+    entity_category: config
+    unit_of_measurement: "°C"
+    min_value: -5
+    max_value: 5
+    step: 0.1
+    initial_value: 0
+    restore_value: true
+    optimistic: true
+    mode: box
+  - platform: template
+    id: sht_humidity_offset
+    name: Humidity offset
+    icon: mdi:water-percent
+    entity_category: config
+    unit_of_measurement: "%"
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    restore_value: true
+    optimistic: true
+    mode: box
+
+sensor:
+  - platform: sht4x
+    id: sht45
+    i2c_id: i2c_main
+    address: 0x44
+    precision: High
+    update_interval: 30s
+    temperature:
+      id: sht_temperature
+      name: Temperature
+      accuracy_decimals: 2
+      filters:
+        - offset: !lambda return id(sht_temperature_offset).state;
+    humidity:
+      id: sht_humidity
+      name: Humidity
+      accuracy_decimals: 1
+      filters:
+        - offset: !lambda return id(sht_humidity_offset).state;
+        - clamp:
+            min_value: 0
+            max_value: 100
+
+binary_sensor:
+  - platform: template
+    name: Climate sensor fault
+    device_class: problem
+    entity_category: diagnostic
+    lambda: return id(sht45).is_failed() || id(sht45).status_has_warning();

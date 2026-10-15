@@ -44,12 +44,12 @@ Nothing has been measured with calipers yet. **[A]** marks an assumption.
 |---|---|---|
 | XIAO ESP32-C3 outline | 21 × 17.8 mm | Seeed wiki source on GitHub |
 | XIAO PCB thickness, shield height, USB-C and U.FL position | 1.2 mm, 3 mm, centred on the short end; U.FL near the other end | [A] |
-| XIAO pin order along the edges | Top row D6..D0, bottom row D7, D8, D9, D10, 3V3, GND, 5V (USB-C to the right) | From memory of Seeed's pinout [A]. Check in Phase 2 |
+| XIAO pin order along the edges | Top row D6..D0, bottom row D7, D8, D9, D10, 3V3, GND, 5V (USB-C to the right) | Confirmed in Phase 2 against Seeed's pinout image (Seeed-Studio/OSHW-XIAO-Series) |
 | XIAO pin functions | D4 = GPIO6 SDA, D5 = GPIO7 SCL, D6 = GPIO21 TX, D7 = GPIO20 RX | ESPHome 2026.9.1 `boards.py` |
 | LD2412 outline | 11 × 28 mm | Hi-Link LD2412 manual V1.01 |
 | LD2412 pin groups | OUT/GND/+5V at one end, TX/RX/G/3V3 at the other | Hi-Link manual. Which end is which, and the order: [A] |
 | OPT3001 breakout | 15 × 13 mm; pins VCC, GND, SCL, SDA, INT, ADD in a row | Size [A]; pin names from the ESPHome docs photo |
-| SHT45 breakout | 25.6 × 17.8 mm, STEMMA QT sockets at both ends | [A] |
+| SHT45 breakout | 25.6 × 17.8 mm, STEMMA QT sockets at both ends | [A] in the model. Adafruit's board file gives 25.4 × 17.78 mm (Phase 2) |
 | Antenna FPC | 10 × 34 mm | [A] |
 | Radar window and gap | 3.8 mm wall, 6.2 mm antenna-to-wall | Proposal 6.3 (Hi-Link guidance, PETG εr ≈ 2.68) |
 | Lux aperture | Ø4.5 mm through a locally thinned 1.6 mm wall, sensor 0.4 mm behind it | Proposal 6.4 (Vishay rule at ±45°) |

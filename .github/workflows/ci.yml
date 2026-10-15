@@ -1,0 +1,86 @@
+# CI: validate every ESPHome config, compile every variant, and check that docs/bom.md matches docs/bom.csv.
+# ESPHome is pinned to the version recorded in CLAUDE.md. Secrets are throwaway (firmware/ci/make_ci_secrets.sh).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  ESPHOME_VERSION: "2026.9.1"
+
+jobs:
+  firmware-config:
+    name: ESPHome config (all files)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install ESPHome
+        run: pip install "esphome==${ESPHOME_VERSION}"
+      - name: Throwaway secrets
+        run: firmware/ci/make_ci_secrets.sh
+      - name: Validate device files and CI targets
+        working-directory: firmware
+        run: |
+          set -e
+          for f in *.yaml ci/*.yaml; do
+            case "$f" in secrets*.yaml|ci/secrets.yaml) continue ;; esac
+            echo "::group::esphome config $f"
+            esphome config "$f" > /dev/null
+            echo "::endgroup::"
+          done
+
+  firmware-compile:
+    name: ESPHome compile (${{ matrix.target }})
+    needs: firmware-config
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [ci-standard, ci-ld2410, ci-options]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install ESPHome
+        run: pip install "esphome==${ESPHOME_VERSION}"
+      - name: Throwaway secrets
+        run: firmware/ci/make_ci_secrets.sh
+      - name: Cache toolchain and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            ~/.esphome
+            firmware/ci/.esphome
+          key: esphome-${{ env.ESPHOME_VERSION }}-${{ matrix.target }}-${{ hashFiles('firmware/**/*.yaml') }}
+          restore-keys: |
+            esphome-${{ env.ESPHOME_VERSION }}-${{ matrix.target }}-
+      - name: Compile
+        working-directory: firmware
+        run: esphome compile ci/${{ matrix.target }}.yaml
+
+  bom:
+    name: BOM tables match docs/bom.csv
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Regenerate and compare
+        run: |
+          python3 tools/bom_totals.py
+          git diff --exit-code docs/bom.md || {
+            echo "::error::docs/bom.md is out of date: run python3 tools/bom_totals.py and commit the result"
+            exit 1
+          }

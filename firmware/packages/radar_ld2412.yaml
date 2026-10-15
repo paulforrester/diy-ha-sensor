@@ -1,0 +1,260 @@
+# Presence: HLK-LD2412 24 GHz radar on UART at 115200 baud (Hi-Link manual V1.01; ESPHome ld2412 docs).
+#
+# - Presence (has_target) is published as soon as the radar reports it. ESPHome's default 1 s settle filter
+#   only damps repeated changes, so entry still shows within about 1 s.
+# - Presence clears after the radar's own timeout ("Radar presence timeout", 0-900 s), set from Home Assistant.
+# - All 14 gates expose move and still thresholds as numbers. Per-gate energies (engineering mode) are disabled by
+#   default and enabled while tuning (docs/calibration.md, Phase 4).
+# - Check "Radar firmware" after first boot: V1.26 is known to ignore configuration commands (esphome #13366).
+# - The radar's Bluetooth is on from the factory: switch "Radar Bluetooth" off after tuning.
+
+uart:
+  id: uart_radar
+  tx_pin: GPIO21     # XIAO D6 -> radar RX
+  rx_pin: GPIO20     # XIAO D7 <- radar TX
+  baud_rate: 115200
+  parity: NONE
+  stop_bits: 1
+
+ld2412:
+  id: radar
+  uart_id: uart_radar
+
+binary_sensor:
+  - platform: ld2412
+    ld2412_id: radar
+    has_target:
+      name: Presence
+      device_class: occupancy
+    has_moving_target:
+      name: Moving target
+    has_still_target:
+      name: Still target
+    dynamic_background_correction_status:
+      name: Radar background correction running
+      entity_category: diagnostic
+
+sensor:
+  - platform: ld2412
+    ld2412_id: radar
+    moving_distance:
+      name: Moving distance
+    still_distance:
+      name: Still distance
+    moving_energy:
+      name: Moving energy
+    still_energy:
+      name: Still energy
+    detection_distance:
+      name: Detection distance
+    gate_0:
+      move_energy:
+        name: Gate 0 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 0 still energy
+        disabled_by_default: true
+    gate_1:
+      move_energy:
+        name: Gate 1 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 1 still energy
+        disabled_by_default: true
+    gate_2:
+      move_energy:
+        name: Gate 2 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 2 still energy
+        disabled_by_default: true
+    gate_3:
+      move_energy:
+        name: Gate 3 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 3 still energy
+        disabled_by_default: true
+    gate_4:
+      move_energy:
+        name: Gate 4 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 4 still energy
+        disabled_by_default: true
+    gate_5:
+      move_energy:
+        name: Gate 5 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 5 still energy
+        disabled_by_default: true
+    gate_6:
+      move_energy:
+        name: Gate 6 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 6 still energy
+        disabled_by_default: true
+    gate_7:
+      move_energy:
+        name: Gate 7 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 7 still energy
+        disabled_by_default: true
+    gate_8:
+      move_energy:
+        name: Gate 8 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 8 still energy
+        disabled_by_default: true
+    gate_9:
+      move_energy:
+        name: Gate 9 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 9 still energy
+        disabled_by_default: true
+    gate_10:
+      move_energy:
+        name: Gate 10 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 10 still energy
+        disabled_by_default: true
+    gate_11:
+      move_energy:
+        name: Gate 11 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 11 still energy
+        disabled_by_default: true
+    gate_12:
+      move_energy:
+        name: Gate 12 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 12 still energy
+        disabled_by_default: true
+    gate_13:
+      move_energy:
+        name: Gate 13 move energy
+        disabled_by_default: true
+      still_energy:
+        name: Gate 13 still energy
+        disabled_by_default: true
+
+number:
+  - platform: ld2412
+    ld2412_id: radar
+    timeout:
+      name: Radar presence timeout
+    min_distance_gate:
+      name: Radar minimum distance gate
+    max_distance_gate:
+      name: Radar maximum distance gate
+    gate_0:
+      move_threshold:
+        name: Gate 0 move threshold
+      still_threshold:
+        name: Gate 0 still threshold
+    gate_1:
+      move_threshold:
+        name: Gate 1 move threshold
+      still_threshold:
+        name: Gate 1 still threshold
+    gate_2:
+      move_threshold:
+        name: Gate 2 move threshold
+      still_threshold:
+        name: Gate 2 still threshold
+    gate_3:
+      move_threshold:
+        name: Gate 3 move threshold
+      still_threshold:
+        name: Gate 3 still threshold
+    gate_4:
+      move_threshold:
+        name: Gate 4 move threshold
+      still_threshold:
+        name: Gate 4 still threshold
+    gate_5:
+      move_threshold:
+        name: Gate 5 move threshold
+      still_threshold:
+        name: Gate 5 still threshold
+    gate_6:
+      move_threshold:
+        name: Gate 6 move threshold
+      still_threshold:
+        name: Gate 6 still threshold
+    gate_7:
+      move_threshold:
+        name: Gate 7 move threshold
+      still_threshold:
+        name: Gate 7 still threshold
+    gate_8:
+      move_threshold:
+        name: Gate 8 move threshold
+      still_threshold:
+        name: Gate 8 still threshold
+    gate_9:
+      move_threshold:
+        name: Gate 9 move threshold
+      still_threshold:
+        name: Gate 9 still threshold
+    gate_10:
+      move_threshold:
+        name: Gate 10 move threshold
+      still_threshold:
+        name: Gate 10 still threshold
+    gate_11:
+      move_threshold:
+        name: Gate 11 move threshold
+      still_threshold:
+        name: Gate 11 still threshold
+    gate_12:
+      move_threshold:
+        name: Gate 12 move threshold
+      still_threshold:
+        name: Gate 12 still threshold
+    gate_13:
+      move_threshold:
+        name: Gate 13 move threshold
+      still_threshold:
+        name: Gate 13 still threshold
+
+select:
+  - platform: ld2412
+    ld2412_id: radar
+    distance_resolution:
+      name: Radar distance resolution
+    # baud_rate is deliberately not exposed: changing it from Home Assistant would cut the UART link.
+
+switch:
+  - platform: ld2412
+    ld2412_id: radar
+    engineering_mode:
+      name: Radar engineering mode
+    bluetooth:
+      name: Radar Bluetooth
+
+button:
+  - platform: ld2412
+    ld2412_id: radar
+    factory_reset:
+      name: Radar factory reset
+    restart:
+      name: Radar restart
+    query_params:
+      name: Radar read settings
+    start_dynamic_background_correction:
+      name: Radar start background correction
+
+text_sensor:
+  - platform: ld2412
+    ld2412_id: radar
+    version:
+      name: Radar firmware

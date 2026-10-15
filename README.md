@@ -16,11 +16,12 @@ MSR-2 reads several degrees high and has no humidity. The Aqara FP300 reports sl
 
 ## Status
 
-**Phase 1: bill of materials.** The design proposal is approved (option B). The parts list for a run of 10 is in
-review. Nothing is ordered or built yet.
+**Phase 2: firmware.** The design is approved (option B) and the parts list for a run of 10 is merged. The ESPHome
+firmware and CI are in review. Nothing is built yet.
 
 - [`docs/design_proposal.md`](docs/design_proposal.md): the approved design, its reasoning and risks.
 - [`docs/bom.md`](docs/bom.md): parts, quantities, sources and costs (prices not yet live-checked).
+- [`firmware/README.md`](firmware/README.md): the ESPHome packages, pin map, entities and how to flash.
 - [`docs/design_decisions.md`](docs/design_decisions.md): the decision log.
 - Concept renders, STLs you can rotate on GitHub, and the wiring diagram are in proposal section 6.0 and
   `cad/concept/`. The real enclosure comes in Phase 3.
@@ -28,8 +29,8 @@ review. Nothing is ordered or built yet.
 | Phase | Content | State |
 |---|---|---|
 | 0 | Questions and design proposal | Done (PR #1) |
-| 1 | Bill of materials and sourcing | In review |
-| 2 | ESPHome firmware and CI | Not started |
+| 1 | Bill of materials and sourcing | Done (PR #2); live prices pending |
+| 2 | ESPHome firmware and CI | In review |
 | 3 | OpenSCAD enclosure, fit-test coupons first | Not started |
 | 4 | Build, calibration, validation and HA docs | Not started |
 | 5 | Bring-up and revision from bench results | Not started |
@@ -41,7 +42,8 @@ review. Nothing is ordered or built yet.
 | `docs/` | Design proposal and images, decision log, BOM; later the build guide, wiring, calibration, validation and HA integration |
 | `tools/` | Helper scripts (BOM tables from `docs/bom.csv`) |
 | `CLAUDE.md` | Context and working rules for Claude sessions on this repo |
-| `firmware/` | (Phase 2) ESPHome packages |
+| `firmware/` | ESPHome packages, variants and device files |
+| `.github/workflows/` | CI: ESPHome config and compile, BOM table check |
 | `cad/concept/` | Phase 0 concept model: OpenSCAD source, render and interference-check scripts, STLs |
 | `cad/` | (Phase 3) OpenSCAD sources, STLs and renders for the real enclosure |
 
