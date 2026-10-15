@@ -34,6 +34,12 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
   (below outdoor ~420 ppm). No humidity entity in its stock config.
 - Aqara FP300 (wine cellar): reports T/RH on step change only, lux about hourly, missed a still person on the sofa.
 - Existing HA automation "Arty Player" switches at **2 lx on / 1 lx off**.
+- Apollo's MSR-2 firmware (`github.com/ApolloAutomation/MSR-2`, `Integrations/ESPHome/Core.yaml`) subtracts a default
+  `DPS Temperature Offset` of **14.54 °C** from the DPS310, and its LTR390 updates every 60 s by default with an
+  optional 5 lx "Reduce DB Reporting" delta filter.
+- Vendor and retailer sites (Sensirion, TI, Vishay, Hi-Link, Espressif, Seeed, Adafruit, esphome.io, all shops) were
+  blocked by the session proxy on 2026-10-15. GitHub and PyPI work. Datasheets were read from GitHub mirrors listed in
+  `docs/design_proposal.md` section 11; ESPHome docs from `github.com/esphome/esphome-docs` (branch `current`).
 
 ## House rules (from Paul; follow them)
 
@@ -75,8 +81,8 @@ python3 -m venv .venv && .venv/bin/pip install esphome==2026.9.1
 To add in later phases (not yet run): `apt-get update && apt-get install -y openscad graphviz` for CAD export and
 the wiring diagram. Record here whether it worked and the installed versions.
 
-Network notes from the 2026-10-15 session: PyPI is reachable directly. Domains blocked by the proxy (if any) are
-listed in `docs/design_proposal.md` section 9.
+Network notes from the 2026-10-15 session: PyPI, github.com and raw.githubusercontent.com are reachable. The domains
+blocked by the proxy are listed in `docs/design_proposal.md` section 9; Paul has been asked to allow them.
 
 ## Repo map
 
