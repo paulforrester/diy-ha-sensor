@@ -97,6 +97,11 @@ Notes per line are in `docs/bom.csv` (column `notes`). The ones that matter befo
     board.
   - The MikroElektronika "Ambient 2 Click" is listed as a branded alternative, but its product code and size are not
     verified.
+- **Lines 4 and 7, LEDs on the Adafruit boards:** both have a green power LED (Adafruit's design files).
+  - SHT45: the LED is hardwired. Desolder it.
+  - SCD-40: cut solder jumper SJ3.
+
+  Either way, no LED shows through the case vents at night.
 - **Line 7, SCD-40:** the DigiKey figure is about €39.40 ex-VAT plus 20 % (calculated; the product URL wasn't
   surfaced). SparkFun SCD40 Qwiic (22395), Seeed Grove SCD41 and DFRobot SCD41 (Gotronic €49.90) are genuine
   alternatives.

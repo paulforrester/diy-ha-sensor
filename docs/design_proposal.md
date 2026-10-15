@@ -509,8 +509,9 @@ firmware/
 
 ### 7.1 Pin map (preliminary)
 
-Pin functions are from ESPHome 2026.9.1 `boards.py` (`seeed_xiao_esp32c3`) [E]. The physical pin order on the
-boards is [A] until checked against the vendor pinouts in Phase 2.
+Pin functions are from ESPHome 2026.9.1 `boards.py` (`seeed_xiao_esp32c3`) [E]. Phase 2 confirmed the physical pin
+order of the XIAO against Seeed's official pinout (Seeed-Studio/OSHW-XIAO-Series) [G]. The LD2412 pin order is still
+[A].
 
 | XIAO pin | GPIO | Connects to | Why this pin |
 |---|---|---|---|

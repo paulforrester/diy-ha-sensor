@@ -1,0 +1,10 @@
+# The first unit, on Paul's bench (Phase 5 bring-up). When it moves to a room, copy this file as
+# sense-<room>.yaml and change the three substitutions. `name` is the DNS host label: the device is reached as
+# <name> plus dns_domain from secrets.yaml, never by IP. Then create the DHCP reservation and DNS name (docs/build.md).
+substitutions:
+  name: sense-bench
+  friendly_name: Bench Sense
+  api_key: !secret sense_bench_api_key
+
+packages:
+  unit: !include variants/standard.yaml

@@ -1,0 +1,16 @@
+# OPTIONAL: ESPHome Bluetooth proxy. NOT recommended on a unit that measures temperature (proposal section 8).
+#
+# Continuous BLE scanning keeps the radio receiving: about +0.3 W in this design (0.56 W -> 0.86 W, proposal 6.2).
+# On an Apollo AIR-1 (ESP32-C3), the ESP internal temperature rose about 17 °C with BLE active (AIR-1 #130).
+# Enable it on a unit only after a bench A/B run shows less than 0.2 °C change at the SHT45 (docs/validation.md,
+# Phase 4).
+#
+# Scanning is passive here (lower duty and heat); connection-based integrations need `active: true`.
+# ESPHome's docs: default scan parameters, ESP-IDF framework, and passive scanning if overheating.
+
+esp32_ble_tracker:
+  scan_parameters:
+    active: false
+
+bluetooth_proxy:
+  active: false

@@ -1,0 +1,58 @@
+# CO2: Sensirion SCD40 on the Adafruit breakout (product 5187), standard on every unit, in the main body.
+#
+# - Power: VIN from the XIAO's 3V3. With 3.3 V in, the board's I2C pull-ups sit at 3.3 V whichever way its
+#   solder jumpers are set (Adafruit-SCD-41.sch: host-side pull-ups go to VIN or 3V via SJ1). The XIAO's 3V3 is
+#   rated 700 mA (Seeed OSHW docs); the Wi-Fi (350 mA) plus SCD40 (175 mA) peak is about 525 mA.
+# - Mode: low-power periodic, one reading every 30 s, about 14 mW. That keeps its heat small, and it sits above the
+#   climate pod in any case.
+# - Calibration: automatic self-calibration (ASC) is OFF. ASC assumes the sensor sees about 400 ppm at least once a
+#   week, which an indoor room doesn't, and outdoor air is now about 426 ppm. Instead, run a forced recalibration
+#   (FRC) outdoors after the datasheet's 5-day run-in: let the unit settle outside for at least 3 minutes, then press
+#   "CO2 forced calibration" with the reference value set.
+# - The SCD40's own temperature and humidity are not exposed; they read the heated main body.
+
+substitutions:
+  co2_altitude: 0m                  # site altitude for pressure compensation; set per site if known
+
+number:
+  - platform: template
+    id: co2_frc_reference
+    name: CO2 calibration reference
+    icon: mdi:molecule-co2
+    entity_category: config
+    unit_of_measurement: ppm
+    min_value: 400
+    max_value: 2000
+    step: 1
+    initial_value: 426
+    restore_value: true
+    optimistic: true
+    mode: box
+
+sensor:
+  - platform: scd4x
+    id: scd40
+    i2c_id: i2c_main
+    measurement_mode: low_power_periodic
+    automatic_self_calibration: false
+    altitude_compensation: ${co2_altitude}
+    update_interval: 30s
+    co2:
+      name: CO2
+
+button:
+  - platform: template
+    name: CO2 forced calibration
+    icon: mdi:tune-variant
+    entity_category: config
+    on_press:
+      - scd4x.perform_forced_calibration:
+          id: scd40
+          value: !lambda return (uint16_t) id(co2_frc_reference).state;
+
+binary_sensor:
+  - platform: template
+    name: CO2 sensor fault
+    device_class: problem
+    entity_category: diagnostic
+    lambda: return id(scd40).is_failed() || id(scd40).status_has_warning();

@@ -1,0 +1,10 @@
+# CI build target: variant "options". Compiled by .github/workflows/ci.yml with secrets.example.yaml as secrets.
+substitutions:
+  name: ci-options
+  friendly_name: CI options
+  api_key: !secret ci_api_key
+
+packages:
+  unit: !include ../variants/standard.yaml
+  onewire: !include ../packages/onewire_probe.yaml
+  ble: !include ../packages/bluetooth_proxy.yaml

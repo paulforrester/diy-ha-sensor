@@ -1,0 +1,8 @@
+# CI build target: variant "ld2410". Compiled by .github/workflows/ci.yml with secrets.example.yaml as secrets.
+substitutions:
+  name: ci-ld2410
+  friendly_name: CI ld2410
+  api_key: !secret ci_api_key
+
+packages:
+  unit: !include ../variants/standard-ld2410.yaml

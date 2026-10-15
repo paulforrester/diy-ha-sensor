@@ -1,0 +1,30 @@
+# OPTIONAL: one DS18B20 temperature probe on the unit's 1-Wire socket (docs/bom.md section 5).
+# Not part of the standard variant. Add it to a device file's packages only when a probe is plugged in.
+#
+# Hardware on every unit: XIAO D2 / GPIO4 (not a strapping pin: ESPHome's C3 list is GPIO2, 8, 9), a 4.7 kΩ pull-up
+# to 3V3, and a JST-XH 3-pin socket.
+#
+# Probes: genuine DS18B20+ chips from an authorised distributor only (cpetrich/counterfeit_DS18B20). On first boot the
+# log lists each probe's ROM address. Check it matches the genuine pattern 28-xx-xx-xx-xx-00-00-xx.
+#
+# This package reads one probe (index 0). For two or more probes, list them in the device file with `address:` instead
+# of `index:`, one dallas_temp sensor each.
+#
+# Substitution the device file can set:
+#   probe_name     Home Assistant name, for example "Bottle temperature"
+
+substitutions:
+  probe_name: Probe temperature
+
+one_wire:
+  - platform: gpio
+    id: onewire_bus
+    pin: GPIO4         # XIAO D2
+
+sensor:
+  - platform: dallas_temp
+    one_wire_id: onewire_bus
+    index: 0
+    name: ${probe_name}
+    resolution: 12
+    update_interval: 30s
