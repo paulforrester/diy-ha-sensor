@@ -11,9 +11,19 @@ ESPHome configuration for the standard unit:
 
 It is built from packages. Each device file is a few lines that set a name and pull in a variant.
 
-**Status:** every config validates with `esphome config` on ESPHome 2026.9.1. Compiling is done by CI
-(`.github/workflows/ci.yml`): the cloud session that wrote this can't reach the PlatformIO registry
-(`api.registry.platformio.org`). **Nothing has run on real hardware yet.**
+**Status:**
+
+- **Config:** every config validates with `esphome config` on ESPHome 2026.9.1.
+- **Compile:** CI compiles all three targets (`.github/workflows/ci.yml`); the cloud session that wrote this can't reach
+  the PlatformIO registry (`api.registry.platformio.org`). First green run, 2026-10-15:
+
+  | Target | App partition (1.75 MB) | RAM |
+  |---|---|---|
+  | Standard | 52.6 % | 34.5 % |
+  | Standard + 1-Wire probe + Bluetooth proxy | 77.3 % | 45.9 % |
+
+  Both leave room for OTA, which uses two app partitions of this size.
+- **Hardware:** **nothing has run on real hardware yet.**
 
 ## Layout
 
