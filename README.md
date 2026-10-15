@@ -16,17 +16,19 @@ MSR-2 reads several degrees high and has no humidity. The Aqara FP300 reports sl
 
 ## Status
 
-**Phase 0: design proposal.** Nothing is built, ordered or decided yet.
+**Phase 1: bill of materials.** The design proposal is approved (option B). The parts list for a run of 10 is in
+review. Nothing is ordered or built yet.
 
-- Read [`docs/design_proposal.md`](docs/design_proposal.md) for the options, the recommendation, costs, risks and the
-  open questions.
+- [`docs/design_proposal.md`](docs/design_proposal.md): the approved design, its reasoning and risks.
+- [`docs/bom.md`](docs/bom.md): parts, quantities, sources and costs (prices not yet live-checked).
+- [`docs/design_decisions.md`](docs/design_decisions.md): the decision log.
 - Concept renders, STLs you can rotate on GitHub, and the wiring diagram are in proposal section 6.0 and
   `cad/concept/`. The real enclosure comes in Phase 3.
 
 | Phase | Content | State |
 |---|---|---|
-| 0 | Questions and design proposal | In review |
-| 1 | Bill of materials and sourcing | Not started |
+| 0 | Questions and design proposal | Done (PR #1) |
+| 1 | Bill of materials and sourcing | In review |
 | 2 | ESPHome firmware and CI | Not started |
 | 3 | OpenSCAD enclosure, fit-test coupons first | Not started |
 | 4 | Build, calibration, validation and HA docs | Not started |
@@ -36,7 +38,8 @@ MSR-2 reads several degrees high and has no humidity. The Aqara FP300 reports sl
 
 | Path | Contents |
 |---|---|
-| `docs/` | Design proposal and its images; later the BOM, build guide, wiring, calibration, validation and HA integration |
+| `docs/` | Design proposal and images, decision log, BOM; later the build guide, wiring, calibration, validation and HA integration |
+| `tools/` | Helper scripts (BOM tables from `docs/bom.csv`) |
 | `CLAUDE.md` | Context and working rules for Claude sessions on this repo |
 | `firmware/` | (Phase 2) ESPHome packages |
 | `cad/concept/` | Phase 0 concept model: OpenSCAD source, render and interference-check scripts, STLs |

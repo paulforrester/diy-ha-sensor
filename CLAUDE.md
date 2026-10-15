@@ -11,9 +11,13 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
 
 ## Status
 
-- **Phase 0 (current):** questions and design proposal, `docs/design_proposal.md`. Waiting for Paul's answers and
-  approval. Nothing is decided until Paul approves; then decisions go into `docs/design_decisions.md`.
-- Phase 1: BOM and sourcing (`docs/bom.md`, `docs/bom.csv`). Paul orders; Claude never orders anything.
+- **Phase 0: done.** `docs/design_proposal.md` was approved and merged (PR #1). Option B as recommended; see
+  `docs/design_decisions.md`.
+- **Phase 1 (current): BOM and sourcing,** `docs/bom.md` and `docs/bom.csv`.
+  - Run of 10 identical units plus spares, all with CO2 as standard, a 1-Wire probe socket and a USB supply. The
+    cellar gets a standard unit; there is no separate cellar design.
+  - Prices are not live-checked yet. A live price pass is described in `docs/bom.md` section 8.
+  - Paul orders; Claude never orders anything.
 - Phase 2: firmware (`firmware/`, ESPHome packages) and CI (`.github/workflows/`).
 - Phase 3: enclosure (`cad/`, OpenSCAD), fit-test coupons first.
 - Phase 4: documentation (build, wiring, calibration, validation, HA integration).
@@ -34,6 +38,19 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
   (below outdoor ~420 ppm). No humidity entity in its stock config.
 - Aqara FP300 (wine cellar): reports T/RH on step change only, lux about hourly, missed a still person on the sofa.
 - Existing HA automation "Arty Player" switches at **2 lx on / 1 lx off**.
+- Paul's answers (2026-10-15):
+  - 10 units, some possibly going to the US;
+  - CO2 wanted;
+  - €27-35 per unit acceptable;
+  - a USB adapter and cable per unit;
+  - CO2 standard on every unit so units are interchangeable;
+  - no separate cellar design: the cellar gets a standard unit.
+- The Apollo SCD40 add-on module uses a proprietary mezzanine connector (Apollo docs), so it isn't used. The Adafruit
+  SCD-40 (5187) has a 3.3 V regulator and level shifters (Adafruit-SCD-4x-PCB README).
+- Every unit has a **1-Wire socket**: XIAO D2 / GPIO4, a 4.7 kΩ pull-up to 3V3, and a JST-XH 3-pin header, for
+  optional DS18B20 probes later. The firmware package is off by default; the case gets a cable knock-out.
+- Future DS18B20 probes: buy the chips only from authorised distributors. Every eBay and AliExpress probe in the
+  cpetrich/counterfeit_DS18B20 study was fake.
 - Apollo's MSR-2 firmware (`github.com/ApolloAutomation/MSR-2`, `Integrations/ESPHome/Core.yaml`) subtracts a default
   `DPS Temperature Offset` of **14.54 °C** from the DPS310, and its LTR390 updates every 60 s by default with an
   optional 5 lx "Reduce DB Reporting" delta filter.
@@ -99,13 +116,17 @@ blocked by the proxy are listed in `docs/design_proposal.md` section 9; Paul has
 ```
 README.md                 overview and status
 CLAUDE.md                 this file
-docs/design_proposal.md   Phase 0: options, recommendation, costs, risks, questions for Paul
+docs/design_proposal.md   Phase 0: options, recommendation, costs, risks, questions for Paul (approved)
+docs/design_decisions.md  dated decision log, most recent first
+docs/bom.md               Phase 1: parts, quantities, sources, costs, shopping list, live price pass
+docs/bom.csv              BOM source of truth; tools/bom_totals.py regenerates the tables in bom.md
+tools/bom_totals.py       regenerates the parts and cost tables in docs/bom.md from docs/bom.csv
 docs/images/concept/      concept renders (PNG) and the wiring diagram (SVG/PNG)
 cad/concept/              Phase 0 concept model (NOT for printing): concept.scad, wiring_concept.dot,
                           render.sh, check_interference.sh, stl_volume.py, stl/, README.md (assumed dimensions)
 .gitignore                ignores secrets.yaml and ESPHome build output
 ```
 
-Planned (later phases): `docs/bom.md`, `docs/bom.csv`, `docs/design_decisions.md`, `docs/build.md`, `docs/wiring.md`,
+Planned (later phases): `docs/build.md`, `docs/wiring.md`,
 `docs/calibration.md`, `docs/validation.md`, `docs/ha_integration.md`, `firmware/` (ESPHome packages),
 `cad/` (OpenSCAD, STLs, renders, check scripts), `.github/workflows/` (CI).

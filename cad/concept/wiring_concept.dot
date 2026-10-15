@@ -2,9 +2,11 @@
 // grey here, white in 3D.
 // XIAO pin names and GPIOs: ESPHome 2026.9.1 boards.py (seeed_xiao_esp32c3).
 // LD2412 and OPT3001 pin names: Hi-Link manual / ESPHome docs photo. Physical pin order is not verified [A].
+// The SCD-40 (CO2, standard on every unit) and the 1-Wire socket were added in Phase 1
+// (docs/design_decisions.md, 2026-10-15); neither is in the 3D model yet.
 digraph wiring {
   graph [rankdir=LR, fontname="Helvetica", fontsize=11, nodesep=0.35, ranksep=1.1, bgcolor="white",
-         label="DIY HA sensor, concept wiring (option B). Not verified on hardware.", labelloc=t];
+         label="DIY HA sensor, concept wiring (option B with CO2 and 1-Wire socket). Not verified on hardware.", labelloc=t];
   node  [shape=plain, fontname="Helvetica", fontsize=10];
   edge  [penwidth=2.2, arrowhead=none, fontname="Helvetica", fontsize=9];
 
@@ -24,6 +26,7 @@ digraph wiring {
       <tr><td>D5 / GPIO7</td><td port="scl">I2C SCL</td></tr>
       <tr><td>D6 / GPIO21</td><td port="tx">UART TX</td></tr>
       <tr><td>D7 / GPIO20</td><td port="rx">UART RX</td></tr>
+      <tr><td>D2 / GPIO4</td><td port="ow">1-Wire</td></tr>
       <tr><td>U.FL</td><td port="ufl">Wi-Fi antenna</td></tr>
     </table>>];
 
@@ -57,13 +60,30 @@ digraph wiring {
       <tr><td port="scl">SCL</td></tr>
     </table>>];
 
+  scd [label=<
+    <table border="1" cellborder="1" cellspacing="0" cellpadding="3" bgcolor="#e8f3f3">
+      <tr><td colspan="2"><b>Adafruit SCD-40 CO2</b><br/>(main body, I2C 0x62)</td></tr>
+      <tr><td port="vin">VIN</td><td rowspan="4">STEMMA QT cable.<br/>VIN from 3V3 until<br/>Phase 2 checks 5 V [A]</td></tr>
+      <tr><td port="gnd">GND</td></tr>
+      <tr><td port="sda">SDA</td></tr>
+      <tr><td port="scl">SCL</td></tr>
+    </table>>];
+
+  ow [label=<
+    <table border="1" cellborder="1" cellspacing="0" cellpadding="3" bgcolor="#f3efe2">
+      <tr><td colspan="2"><b>1-Wire socket</b><br/>(JST-XH 3-pin, main body)<br/>for optional DS18B20 probes</td></tr>
+      <tr><td port="v33">3V3</td><td rowspan="3">4.7 kΩ pull-up<br/>DATA to 3V3<br/>(pin order [A])</td></tr>
+      <tr><td port="data">DATA</td></tr>
+      <tr><td port="gnd">GND</td></tr>
+    </table>>];
+
   ant [label=<
     <table border="1" cellborder="0" cellspacing="0" cellpadding="4" bgcolor="#f7f0dc">
       <tr><td><b>FPC antenna</b><br/>(left wall, behind the radar plane)</td></tr>
     </table>>];
 
-  { rank=same; radar; opt; sht; ant; }
-  radar -> opt -> sht -> ant [style=invis];
+  { rank=same; radar; opt; sht; scd; ow; ant; }
+  radar -> opt -> sht -> scd -> ow -> ant [style=invis];
 
   usb:e -> xiao:usb:w [color="gray40", penwidth=3, label="USB-A to C cable"];
 
@@ -82,6 +102,15 @@ digraph wiring {
   xiao:gnd:e -> sht:gnd:w   [color="black"];
   xiao:sda:e -> sht:sda:w   [color="royalblue"];
   xiao:scl:e -> sht:scl:w   [color="gold"];
+
+  xiao:v33:e -> scd:vin:w   [color="orange"];
+  xiao:gnd:e -> scd:gnd:w   [color="black"];
+  xiao:sda:e -> scd:sda:w   [color="royalblue"];
+  xiao:scl:e -> scd:scl:w   [color="gold"];
+
+  xiao:v33:e -> ow:v33:w    [color="orange"];
+  xiao:ow:e  -> ow:data:w   [color="purple"];
+  xiao:gnd:e -> ow:gnd:w    [color="black"];
 
   xiao:ufl:e -> ant:w       [color="dimgray", style=dashed, label="U.FL coax"];
 }
