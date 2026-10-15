@@ -1,8 +1,9 @@
 # Design proposal: DIY presence and climate sensor (Phase 0)
 
 - **Date:** 2026-10-15 (checked with `TZ=Europe/Paris date`).
-- **Status:** a proposal for Paul to review. Nothing is decided, nothing is ordered, and no firmware or CAD has been
-  written. Once Paul answers section 10 and approves an option, the decisions move into `docs/design_decisions.md`.
+- **Status:** a proposal for Paul to review. Nothing is decided, nothing is ordered, and no firmware has been
+  written. The only CAD is a rough concept model, made so the layout can be reviewed (section 6.0); it is not a
+  printable design. Once Paul answers section 10 and approves an option, the decisions move into `docs/design_decisions.md`.
 - **ESPHome baseline:** 2026.9.1, the current stable release on PyPI on 2026-10-15.
 
 How to read the source tags (full list in section 11):
@@ -305,6 +306,32 @@ Extra costs to plan for:
 
 ## 6. Enclosure concept
 
+### 6.0 Concept renders
+
+These come from a rough OpenSCAD concept model, `cad/concept/concept.scad`. Board sizes are from datasheets or are
+assumptions, all listed in `cad/concept/README.md`. **It is a picture of the proposal, not a printable design.** To
+rotate the parts in the browser, open the STLs in `cad/concept/stl/` on GitHub.
+
+| Closed unit, front | Closed unit, back |
+|---|---|
+| ![Assembly, front](images/concept/concept_assembly_front.png) | ![Assembly, back](images/concept/concept_assembly_back.png) |
+| **Front walls removed** | **Section through the centre** |
+| ![Cutaway](images/concept/concept_cutaway.png) | ![Section](images/concept/concept_section.png) |
+| **Electronics and wiring** | **Exploded** |
+| ![Electronics](images/concept/concept_electronics.png) | ![Exploded](images/concept/concept_exploded.png) |
+
+The three printed parts, open sides towards the camera: back plate, body shell, pod shell.
+
+![Parts](images/concept/concept_parts.png)
+
+Wiring, pin to pin. The colours match the renders. The pin map is in section 7.1.
+
+![Wiring](images/concept/wiring_concept.png)
+
+`cad/concept/check_interference.sh` intersects every board and wire with every case part. On 2026-10-15 it found no
+overlaps; the only contacts are the intended ones (the XIAO in its cradle, the radar in its rails). This checks the
+model against its own numbers only.
+
 ### 6.1 Layout
 
 Side section of a wall-mounted unit. The case is vertical so that it works as a chimney: room air enters the pod from
@@ -334,11 +361,12 @@ below, and the electronics vent upward.
              room air in
 ```
 
-Rough size before any CAD [A]:
+Size in the concept model [A]:
 
-- main body about 45 × 60 × 25 mm;
-- pod about 45 × 20 × 25 mm;
-- about 90-95 mm tall overall.
+- main body 46 × 62 mm (W × H);
+- pod 46 × 24 mm;
+- 10 mm gap between them;
+- 46 × 28 × 96 mm overall (W × D × H), plus 3 mm wall feet.
 
 Board sizes come from datasheets and vendor pages until Paul measures the real parts.
 
@@ -479,6 +507,23 @@ firmware/
 - **CI:** GitHub Actions runs `esphome config` and `esphome compile` for every device file, using a dummy
   `secrets.yaml`.
 
+### 7.1 Pin map (preliminary)
+
+Pin functions are from ESPHome 2026.9.1 `boards.py` (`seeed_xiao_esp32c3`) [E]. The physical pin order on the
+boards is [A] until checked against the vendor pinouts in Phase 2.
+
+| XIAO pin | GPIO | Connects to | Why this pin |
+|---|---|---|---|
+| 5V | — | LD2412 +5V | The radar runs on 5 V, straight from USB. This keeps its 90 mA off the XIAO's regulator |
+| GND | — | LD2412 GND, OPT3001 GND, SHT45 GND | |
+| 3V3 | — | OPT3001 VCC (and its ADD pin, giving address 0x45), SHT45 VIN | I2C sensors at 3.3 V logic |
+| D4 | GPIO6 | SDA: OPT3001, SHT45 | The XIAO's I2C pins [E]. The C3 has one I2C bus in ESPHome |
+| D5 | GPIO7 | SCL: OPT3001, SHT45 | |
+| D6 | GPIO21 | LD2412 RX (ESP TX) | The XIAO's UART pins [E]. ESPHome's logger on the C3 defaults to USB-Serial-JTAG, so the UART is free [E] |
+| D7 | GPIO20 | LD2412 TX (ESP RX) | The radar's UART runs at 3.3 V logic [D], so no level shifter is needed |
+| D0, D8, D9 | GPIO2, 8, 9 | Unused | Strapping pins [D]; left free |
+| U.FL | — | FPC antenna | |
+
 ## 8. Evaluate-and-recommend items
 
 | Item | Recommendation | Why |
@@ -496,8 +541,13 @@ firmware/
    - Mitigation: separate pod, then the cable-tail fallback.
    - Measured on one unit before building more.
 2. **LD2412 firmware (medium).** V1.26 is known-bad [G]. Check on arrival; the LD2410C is the fallback.
-3. **Board details unconfirmed (medium).** The XIAO ESP32-C3 charge LED behaviour, the OPT3001 breakout's ADDR wiring,
-   and breakout LEDs and dimensions are all unconfirmed. Fit coupons and a bench check come before the full print.
+3. **Board details unconfirmed (medium).** These are all unconfirmed:
+   - the XIAO ESP32-C3 charge-LED behaviour;
+   - the OPT3001 breakout's ADDR wiring;
+   - the breakout LEDs and dimensions;
+   - the physical pin order of the XIAO and LD2412 used in the concept model.
+
+   Fit coupons and a bench check come before the full print.
 4. **Radar window (low to medium).** PETG permittivity at 24 GHz isn't measured, and pigment loss is unknown. The
    coupon bench test covers both.
 5. **Prices (medium).** All are snippets, some clearly stale or promotional. Phase 1 redoes them live.

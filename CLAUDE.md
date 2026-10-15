@@ -78,8 +78,18 @@ python3 -m venv .venv && .venv/bin/pip install esphome==2026.9.1
 .venv/bin/esphome version
 ```
 
-To add in later phases (not yet run): `apt-get update && apt-get install -y openscad graphviz` for CAD export and
-the wiring diagram. Record here whether it worked and the installed versions.
+```sh
+# OpenSCAD and Graphviz for CAD renders and the wiring diagram (worked 2026-10-15 on Ubuntu 24.04:
+# OpenSCAD 2021.01, Graphviz 2.43.0). xvfb-run was already installed; headless PNG export needs it.
+apt-get update && apt-get install -y openscad graphviz
+cad/concept/render.sh               # concept PNGs + STLs + wiring diagram
+cad/concept/check_interference.sh   # CGAL overlap check of boards and wires against case parts
+```
+
+OpenSCAD 2021.01 notes:
+- PNG export uses the OpenCSG preview, which keeps colours; `--render` would lose them.
+- Transparency hides objects drawn after it, so cutaway views remove walls instead of using alpha.
+- Coplanar faces of different parts z-fight in the preview, so keep a small clearance (`fit`) between mating parts.
 
 Network notes from the 2026-10-15 session: PyPI, github.com and raw.githubusercontent.com are reachable. The domains
 blocked by the proxy are listed in `docs/design_proposal.md` section 9; Paul has been asked to allow them.
@@ -90,6 +100,9 @@ blocked by the proxy are listed in `docs/design_proposal.md` section 9; Paul has
 README.md                 overview and status
 CLAUDE.md                 this file
 docs/design_proposal.md   Phase 0: options, recommendation, costs, risks, questions for Paul
+docs/images/concept/      concept renders (PNG) and the wiring diagram (SVG/PNG)
+cad/concept/              Phase 0 concept model (NOT for printing): concept.scad, wiring_concept.dot,
+                          render.sh, check_interference.sh, stl_volume.py, stl/, README.md (assumed dimensions)
 .gitignore                ignores secrets.yaml and ESPHome build output
 ```
 
