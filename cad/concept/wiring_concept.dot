@@ -1,0 +1,87 @@
+// Phase 0 concept wiring (option B). Wire colours match the 3D renders, except radar TX -> XIAO RX:
+// grey here, white in 3D.
+// XIAO pin names and GPIOs: ESPHome 2026.9.1 boards.py (seeed_xiao_esp32c3).
+// LD2412 and OPT3001 pin names: Hi-Link manual / ESPHome docs photo. Physical pin order is not verified [A].
+digraph wiring {
+  graph [rankdir=LR, fontname="Helvetica", fontsize=11, nodesep=0.35, ranksep=1.1, bgcolor="white",
+         label="DIY HA sensor, concept wiring (option B). Not verified on hardware.", labelloc=t];
+  node  [shape=plain, fontname="Helvetica", fontsize=10];
+  edge  [penwidth=2.2, arrowhead=none, fontname="Helvetica", fontsize=9];
+
+  usb [label=<
+    <table border="1" cellborder="0" cellspacing="0" cellpadding="4" bgcolor="#f2f2f2">
+      <tr><td><b>USB-C supply</b><br/>5 V, at least 0.5 A</td></tr>
+    </table>>];
+
+  xiao [label=<
+    <table border="1" cellborder="1" cellspacing="0" cellpadding="3" bgcolor="#e8eef7">
+      <tr><td colspan="2"><b>XIAO ESP32-C3</b><br/>(main body)</td></tr>
+      <tr><td port="usb">USB-C</td><td>power in</td></tr>
+      <tr><td>5V</td><td port="v5">to radar</td></tr>
+      <tr><td>GND</td><td port="gnd">common</td></tr>
+      <tr><td>3V3</td><td port="v33">I2C sensors</td></tr>
+      <tr><td>D4 / GPIO6</td><td port="sda">I2C SDA</td></tr>
+      <tr><td>D5 / GPIO7</td><td port="scl">I2C SCL</td></tr>
+      <tr><td>D6 / GPIO21</td><td port="tx">UART TX</td></tr>
+      <tr><td>D7 / GPIO20</td><td port="rx">UART RX</td></tr>
+      <tr><td>U.FL</td><td port="ufl">Wi-Fi antenna</td></tr>
+    </table>>];
+
+  radar [label=<
+    <table border="1" cellborder="1" cellspacing="0" cellpadding="3" bgcolor="#e6f2e8">
+      <tr><td colspan="2"><b>HLK-LD2412 radar</b><br/>(main body, 115200 baud)</td></tr>
+      <tr><td port="v5">+5V</td><td>~90 mA</td></tr>
+      <tr><td port="gnd">GND</td><td></td></tr>
+      <tr><td port="rx">RX</td><td></td></tr>
+      <tr><td port="tx">TX</td><td></td></tr>
+      <tr><td>OUT, 3V3</td><td>not connected</td></tr>
+    </table>>];
+
+  opt [label=<
+    <table border="1" cellborder="1" cellspacing="0" cellpadding="3" bgcolor="#efe6f5">
+      <tr><td colspan="2"><b>OPT3001 lux</b><br/>(light cell, I2C 0x45)</td></tr>
+      <tr><td port="vcc">VCC</td><td port="vcce"></td></tr>
+      <tr><td port="gnd">GND</td><td></td></tr>
+      <tr><td port="sda">SDA</td><td></td></tr>
+      <tr><td port="scl">SCL</td><td></td></tr>
+      <tr><td port="add">ADD</td><td port="adde">to VCC: 0x45</td></tr>
+      <tr><td>INT</td><td>not connected</td></tr>
+    </table>>];
+
+  sht [label=<
+    <table border="1" cellborder="1" cellspacing="0" cellpadding="3" bgcolor="#e3ecf9">
+      <tr><td colspan="2"><b>SHT45 breakout</b><br/>(climate pod, I2C 0x44)</td></tr>
+      <tr><td port="vin">VIN</td><td rowspan="4">STEMMA QT<br/>cable,<br/>about 100 mm</td></tr>
+      <tr><td port="gnd">GND</td></tr>
+      <tr><td port="sda">SDA</td></tr>
+      <tr><td port="scl">SCL</td></tr>
+    </table>>];
+
+  ant [label=<
+    <table border="1" cellborder="0" cellspacing="0" cellpadding="4" bgcolor="#f7f0dc">
+      <tr><td><b>FPC antenna</b><br/>(left wall, behind the radar plane)</td></tr>
+    </table>>];
+
+  { rank=same; radar; opt; sht; ant; }
+  radar -> opt -> sht -> ant [style=invis];
+
+  usb:e -> xiao:usb:w [color="gray40", penwidth=3, label="USB-A to C cable"];
+
+  xiao:v5:e -> radar:v5:w  [color="red"];
+  xiao:gnd:e -> radar:gnd:w [color="black"];
+  xiao:tx:e -> radar:rx:w  [color="limegreen"];
+  xiao:rx:e -> radar:tx:w  [color="gray55", style=bold];
+
+  xiao:v33:e -> opt:vcc:w   [color="orange"];
+  xiao:gnd:e -> opt:gnd:w   [color="black"];
+  xiao:sda:e -> opt:sda:w   [color="royalblue"];
+  xiao:scl:e -> opt:scl:w   [color="gold"];
+  opt:adde:e -> opt:vcce:e [color="orange", penwidth=1.4, constraint=false];
+
+  xiao:v33:e -> sht:vin:w   [color="orange"];
+  xiao:gnd:e -> sht:gnd:w   [color="black"];
+  xiao:sda:e -> sht:sda:w   [color="royalblue"];
+  xiao:scl:e -> sht:scl:w   [color="gold"];
+
+  xiao:ufl:e -> ant:w       [color="dimgray", style=dashed, label="U.FL coax"];
+}
