@@ -110,6 +110,11 @@ ones that matter before ordering:
     (esphome #13366).
 - **Line 4, SHT45:** the 18-week lead time in the snippet is gone: DigiKey has 1,345 in stock. Berrybase is out of
   stock.
+- **Lines 4 and 7, LEDs on the Adafruit boards:** both have a green power LED (Adafruit's design files).
+  - SHT45: the LED is hardwired. Desolder it.
+  - SCD-40: cut solder jumper SJ3.
+
+  Either way, no LED shows through the case vents at night.
 - **Line 5, OPT3001:** a CJMCU-3001 board.
   - Both listings' photos show the ADD pin broken out and no LED.
   - ADD has a 10 kΩ resistor on the board whose direction (pull-up or pull-down) isn't visible. Measure it on arrival

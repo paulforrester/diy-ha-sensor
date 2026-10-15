@@ -1,0 +1,9 @@
+# Standard unit with the fallback radar, HLK-LD2410C, in place of the LD2412.
+# Same wiring, same sensors; only the radar package differs.
+packages:
+  base: !include ../packages/base.yaml
+  i2c: !include ../packages/i2c.yaml
+  climate: !include ../packages/climate_sht45.yaml
+  lux: !include ../packages/lux_opt3001.yaml
+  co2: !include ../packages/co2_scd40.yaml
+  radar: !include ../packages/radar_ld2410.yaml

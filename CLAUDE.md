@@ -13,14 +13,16 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
 
 - **Phase 0: done.** `docs/design_proposal.md` was approved and merged (PR #1). Option B as recommended; see
   `docs/design_decisions.md`.
-- **Phase 1 (current): BOM and sourcing,** `docs/bom.md` and `docs/bom.csv`.
-  - Run of 10 identical units plus spares, all with CO2 as standard, a 1-Wire probe socket and a USB supply. The
-    cellar gets a standard unit; there is no separate cellar design.
-  - Prices live-checked on 2026-10-15 (lines 1-14; PETG is Paul's stock): about €1,020-1,200 for the run before
-    delivery and duty. Stock and marketplace prices move; `docs/bom.md` section 8 says how to repeat the pass.
+- **Phase 1: done** (PR #2). `docs/bom.md` and `docs/bom.csv`.
+  - Run of 10 identical units plus spares, all with CO2 as standard, a 1-Wire probe socket and a USB supply.
+  - Prices live-checked on 2026-10-15 (PR #4; lines 1-14, PETG is Paul's stock): about €1,020-1,200 for the run
+    before delivery and duty. Stock and marketplace prices move; `docs/bom.md` section 8 says how to repeat the pass.
   - Open for Paul: branded USB adapters (Belkin, €11.99) versus the unbranded €2.50 ones the draft had (BOM line 11).
   - Paul orders; Claude never orders anything.
-- Phase 2: firmware (`firmware/`, ESPHome packages) and CI (`.github/workflows/`).
+- **Phase 2 (current): firmware and CI.**
+  - `firmware/`: ESPHome packages, variants and device files. See `firmware/README.md`.
+  - `.github/workflows/ci.yml`: `esphome config` for all files, `esphome compile` for three targets, and a check that
+    the BOM tables match the CSV.
 - Phase 3: enclosure (`cad/`, OpenSCAD), fit-test coupons first.
 - Phase 4: documentation (build, wiring, calibration, validation, HA integration).
 - Phase 5: bring-up and revision from Paul's bench results.
@@ -56,6 +58,13 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
 - Apollo's MSR-2 firmware (`github.com/ApolloAutomation/MSR-2`, `Integrations/ESPHome/Core.yaml`) subtracts a default
   `DPS Temperature Offset` of **14.54 °C** from the DPS310, and its LTR390 updates every 60 s by default with an
   optional 5 lx "Reduce DB Reporting" delta filter.
+- XIAO ESP32-C3 pinout confirmed from Seeed's own image (github.com/Seeed-Studio/OSHW-XIAO-Series,
+  `pinout/XIAO_ESP32-C3_front_pinout.png`); its 3V3 pin can supply 700 mA (same repo's docs).
+- Adafruit SHT45 and SCD-40 boards each have a green power LED: the SHT45's is hardwired (desolder it), the SCD-40's is
+  disabled by cutting SJ3. The SCD-40 runs from 3V3; its I2C pull-ups then sit at 3.3 V whatever SJ1 is set to
+  (Adafruit-SCD-4x-PCB schematic).
+- `esphome compile` can't run in the cloud session: `api.registry.platformio.org` and `api.registry.nm1.platformio.org`
+  are blocked by the proxy (2026-10-15). `esphome config` works; GitHub Actions compiles.
 - Vendor and retailer sites (Sensirion, TI, Vishay, Hi-Link, Espressif, Seeed, Adafruit, esphome.io, all shops) were
   blocked by the cloud session proxy on 2026-10-15. GitHub and PyPI work. Datasheets were read from GitHub mirrors
   listed in `docs/design_proposal.md` section 11; ESPHome docs from `github.com/esphome/esphome-docs` (branch
@@ -101,6 +110,9 @@ Commands used in the cloud session (turn these into the environment setup script
 # ESPHome, pinned to the version recorded above, in a venv
 python3 -m venv .venv && .venv/bin/pip install esphome==2026.9.1
 .venv/bin/esphome version
+# Validate the firmware with throwaway secrets (never overwrites a real firmware/secrets.yaml)
+firmware/ci/make_ci_secrets.sh
+(cd firmware && for f in *.yaml ci/ci-*.yaml; do ../.venv/bin/esphome config "$f" >/dev/null && echo "ok $f"; done)
 ```
 
 ```sh
@@ -129,12 +141,13 @@ docs/design_decisions.md  dated decision log, most recent first
 docs/bom.md               Phase 1: parts, quantities, sources, costs, shopping list, live price pass
 docs/bom.csv              BOM source of truth; tools/bom_totals.py regenerates the tables in bom.md
 tools/bom_totals.py       regenerates the parts and cost tables in docs/bom.md from docs/bom.csv
+firmware/                 ESPHome: packages/, variants/, device files (sense-<name>.yaml), ci/ targets, README.md
+.github/workflows/ci.yml  CI: esphome config + compile, BOM tables up to date
 docs/images/concept/      concept renders (PNG) and the wiring diagram (SVG/PNG)
 cad/concept/              Phase 0 concept model (NOT for printing): concept.scad, wiring_concept.dot,
                           render.sh, check_interference.sh, stl_volume.py, stl/, README.md (assumed dimensions)
 .gitignore                ignores secrets.yaml and ESPHome build output
 ```
 
-Planned (later phases): `docs/build.md`, `docs/wiring.md`,
-`docs/calibration.md`, `docs/validation.md`, `docs/ha_integration.md`, `firmware/` (ESPHome packages),
-`cad/` (OpenSCAD, STLs, renders, check scripts), `.github/workflows/` (CI).
+Planned (later phases): `docs/build.md`, `docs/wiring.md`, `docs/calibration.md`, `docs/validation.md`,
+`docs/ha_integration.md`, `cad/` (OpenSCAD, STLs, renders, check scripts; CAD checks get added to CI).

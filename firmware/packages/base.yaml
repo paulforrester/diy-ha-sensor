@@ -1,0 +1,88 @@
+# Common base for every unit: board, Wi-Fi, API, OTA, safe mode, logging and diagnostics.
+#
+# Substitutions the device file must set:
+#   name           node name, which is also the DNS host label: lowercase letters, digits and hyphens,
+#                  at most 31 characters, no underscores (ESPHome core/config.py)
+#   friendly_name  device name shown in Home Assistant
+#   api_key        per-device API encryption key (32-byte base64), usually `!secret <name>_api_key`;
+#                  it also encrypts OTA updates
+#
+# House network rule: no literal IPs. ESPHome reaches the device as <name><dns_domain>; dns_domain lives in
+# secrets.yaml (for example ".example.lan"), so the zone stays out of the public repo until Paul decides.
+
+substitutions:
+  log_level: INFO
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2026.9.0
+  project:
+    name: paulforrester.diy-ha-sensor
+    version: "0.1.0"
+
+esp32:
+  board: seeed_xiao_esp32c3        # pin aliases D0..D10 checked in ESPHome 2026.9.1 boards.py
+  framework:
+    type: esp-idf
+
+# The logger defaults to USB-Serial-JTAG on the ESP32-C3, which leaves UART0 (D6/D7) free for the radar.
+logger:
+  level: ${log_level}
+
+api:
+  encryption:
+    key: ${api_key}
+
+# OTA updates are encrypted with the API key (ESPHome's recommended form), so one key per device protects both.
+ota:
+  - platform: esphome
+    encryption: {}
+
+# Boot-loop protection: after 10 failed boots the device starts in safe mode (Wi-Fi, API and OTA only).
+safe_mode:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret dns_domain       # the device is reached as ${name} + this domain, never by IP
+  power_save_mode: light           # ESPHome's ESP32 default, kept explicit: lowest self-heating (proposal 6.2)
+  ap:
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+# ---------------------------------------------------------------- diagnostics
+sensor:
+  - platform: wifi_signal
+    name: Wi-Fi signal
+    update_interval: 60s
+    entity_category: diagnostic
+  - platform: uptime
+    name: Uptime
+    update_interval: 60s
+    entity_category: diagnostic
+  - platform: internal_temperature
+    name: ESP temperature
+    update_interval: 60s
+    entity_category: diagnostic
+
+binary_sensor:
+  - platform: status
+    name: Status
+
+text_sensor:
+  - platform: version
+    name: ESPHome version
+    hide_timestamp: true
+  - platform: wifi_info
+    ip_address:
+      name: IP address
+
+button:
+  - platform: restart
+    name: Restart
+  - platform: safe_mode
+    name: Restart in safe mode
+
+# No status LED. The XIAO ESP32-C3 has no user LED, and its charge LED is not software-controlled.

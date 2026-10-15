@@ -26,6 +26,52 @@ are in `docs/bom.csv`.
   - No branded adapter under €9.99 was found on Amazon.fr, and the €9.99 Hama had only 3 in stock.
   - Keeping unbranded adapters would save about €75-95 for the run [calc].
 
+## 2026-10-15: Phase 2 firmware (proposed, in the firmware PR)
+
+- **Pin map confirmed** against Seeed's own XIAO ESP32-C3 pinout image (github.com/Seeed-Studio/OSHW-XIAO-Series,
+  `pinout/XIAO_ESP32-C3_front_pinout.png`) and ESPHome's `seeed_xiao_esp32c3` aliases:
+  - I2C: D4 GPIO6 SDA, D5 GPIO7 SCL;
+  - radar UART: D6 GPIO21 TX, D7 GPIO20 RX;
+  - 1-Wire: D2 GPIO4.
+
+  The order along the board edges matches the Phase 0 concept model.
+- **SCD-40 power: XIAO 3V3, no board rework.** This resolves the Phase 1 open point.
+  - Adafruit's SCD-41 schematic: host-side I2C pull-ups go to VIN or the board's 3.3 V regulator through SJ1, and
+    the sensor supply is chosen by SJ2. With VIN = 3.3 V, the bus sits at 3.3 V whichever way the jumpers are set.
+    VIN = 5 V would need SJ1 re-bridged on every board.
+  - Headroom: Seeed's OSHW doc says the XIAO's 3V3 can supply 700 mA. The peak load is about 525 mA (ESP32-C3 Wi-Fi
+    350 mA + SCD40 175 mA).
+- **Board LEDs off.** Both Adafruit boards have a green power LED (design files):
+  - SHT45: hardwired, so it is desoldered;
+  - SCD-40: solder jumper SJ3 is cut.
+
+  The XIAO has only a charge LED, not software-controlled; whether it lights on USB without a battery is checked at
+  bring-up [A].
+- **I2C at 100 kHz.** Conservative for the cable to the climate pod. All three sensors allow 400 kHz or more (SCD4x
+  datasheet v1.7, SHT4x and OPT3001 datasheets).
+- **Reporting:**
+  - temperature and humidity every 30 s, every reading published;
+  - illuminance polled every 1 s, sent at once on a change of at least 10 % or 0.1 lx, otherwise every 60 s;
+  - CO2 every 30 s in low-power periodic mode;
+  - presence on change, with ESPHome's default 1 s settle.
+- **CO2 calibration.** Automatic self-calibration off; forced recalibration outdoors from a Home Assistant button. The
+  reference value is a number entity, default 426 ppm. ESPHome's action stops and restarts the measurement itself
+  (`scd4x.cpp`).
+- **Security:**
+  - one API encryption key per device;
+  - OTA encrypted with the same key (ESPHome's recommended form, which also removes a separate OTA password);
+  - a password-protected fallback AP.
+- **Network rule.** `wifi: domain` comes from secrets.yaml, so the device is reached as `<name><dns_domain>` and the
+  zone isn't in the public repo until Paul answers proposal question 9.
+- **Not exposed:**
+  - the radar's baud-rate select, because changing it from Home Assistant would cut the UART link;
+  - the SCD40's own temperature and humidity, because they read the heated main body.
+- **Optional packages, off by default, but compiled in CI so they don't rot:**
+  - the 1-Wire probe;
+  - the Bluetooth proxy, set to passive scanning.
+- **Compiling.** The cloud session can't reach `api.registry.platformio.org`, so GitHub Actions is the authoritative
+  compile check. It compiles three targets: standard, LD2410C, and standard plus both options.
+
 ## 2026-10-15: USB cable (decided)
 
 - **Cable: white, 2 m, USB-A to USB-C, the same for every unit** (Paul). The USB-A end matches the USB-A wall adapters
@@ -76,6 +122,8 @@ Source: Paul's message in the Phase 1 session, after PR #2 opened.
   - Cost: about €47-53 each [S]. With CO2 in all 10 units, CO2 is more than half the run cost (`docs/bom.md` section 1).
 - **SCD-40 power: from the XIAO's 3V3 until checked.** Adafruit's I2C pull-ups follow the board supply. Feeding it 5 V
   could put 5 V on the ESP32-C3's I2C pins.
+  - Resolved (2026-10-15, Phase 2): 3V3 it is, with no rework, and the 700 mA regulator has headroom (entry at the
+    top).
   - Phase 2 checks Adafruit's schematic before deciding [A].
   - Phase 2 also checks the XIAO's regulator headroom. The ESP32-C3 Wi-Fi peak (350 mA) plus the SCD40 peak (175 mA)
     is about 525 mA, against a XIAO rating stated as both 500 mA and 700 mA.
