@@ -23,7 +23,7 @@ How to read the source tags (full list in section 11):
 - **MCU:** Seeed **XIAO ESP32-C3**, which ships with an external antenna.
 - **Radar:** Hi-Link **LD2412**.
 - **Temperature and humidity:** genuine Sensirion **SHT45** on an Adafruit breakout.
-- **Lux:** **TI OPT3001** (or VEML7700, see 4.3).
+- **Lux:** **TI OPT3001**, behind an open aperture in a sealed light cell (see 4.3 and 6.4).
 - **Enclosure:** a two-part PETG case.
   - The **main body** holds the MCU and radar and vents upward.
   - A small **climate pod** hangs below it, across an open, ventilated air gap.
@@ -50,7 +50,7 @@ How to read the source tags (full list in section 11):
 **Biggest risk:** the ±0.5 °C target. The evidence from similar devices is clear:
 
 - slots and cut-outs on a small board still leave errors of 1-5 °C;
-- this device dissipates about 0.55 W, most of it in the radar;
+- this device dissipates about 0.56 W, most of it in the radar;
 - hence the separate pod.
 
 The plan builds and measures **one** unit before Paul builds the rest.
@@ -73,8 +73,8 @@ The plan builds and measures **one** unit before Paul builds the rest.
 | Still person detected as reliably as a moving one | LD2412: separate per-gate still thresholds on 14 gates; still detection rated at or above the LD2410 [D][G][S] | Bench step: sit still on the sofa 30 min; presence must not drop (`docs/validation.md`, Phase 4) |
 | Presence within about 1 s; clear after a configurable timeout | The radar streams frames over UART; ESPHome publishes on change. LD2412 `timeout` number entity, 0-900 s [E] | Bench step: walk in and time it against HA history |
 | 0.1 lx resolution in 0-10 lx; daylight up to tens of klx; light on/off reported within 2 s | OPT3001 auto-ranges in hardware with one 800 ms conversion [E]. Poll every 1 s; delta filter plus heartbeat | Dark-room readings; light-switch step timing against HA history |
-| No LED near the lux sensor or leaking into it | Sealed light cell in the case. No always-on LED on the XIAO (charge LED only, see 4.1). Breakout power LEDs cut or covered | Bench step: lux reading in a dark room with the device on and off |
-| T within ±0.5 °C, RH within ±3 % of an SNZB-02D after 1 h | SHT45 (±0.1 °C / ±1.0 %RH typ) [D] in a separate vented pod, away from about 0.55 W of heat | 48 h side-by-side against an SNZB-02D |
+| No LED near the lux sensor or leaking into it | Sealed, opaque light cell. No always-on LED on the XIAO (charge LED only, see 4.1). Breakout power LEDs cut or desoldered | Bench step: dark-room reading must stay ≤0.03 lx with the device running |
+| T within ±0.5 °C, RH within ±3 % of an SNZB-02D after 1 h | SHT45 (±0.1 °C / ±1.0 %RH typ) [D] in a separate vented pod, away from about 0.56 W of heat | 48 h side-by-side against an SNZB-02D |
 | Report every 30-60 s, heartbeat, offsets as HA `number` entities | ESPHome `sht4x` at 30 s, `delta` + `heartbeat` filters; offsets as template numbers with `restore_value` | Config compile in CI; check in HA |
 | USB-C 5 V, always powered | XIAO USB-C; radar on 5 V directly | Bench |
 | ESPHome, encrypted API, OTA, 2.4 GHz Wi-Fi | Common base package | CI `esphome config` + `compile` |
@@ -93,7 +93,7 @@ The plan builds and measures **one** unit before Paul builds the rest.
 | MSR-2 radar on factory thresholds | Nothing tuned | Gate thresholds exposed as HA numbers; tuning procedure in `docs/calibration.md` (Phase 4) |
 | FP300 reports T/RH only on step changes | Battery firmware throttles reports | Mains-powered: 30 s reports plus heartbeat |
 | FP300 lux only about hourly | Same | 1 s polling, delta filter, heartbeat |
-| FP300 cleared while someone sat still | Battery-limited radar duty cycle (I don't know its internals; closed firmware) [A] | Continuous 24 GHz radar with still-target gates |
+| FP300 cleared while someone sat still | Unknown: the firmware is closed. A battery-saving radar duty cycle is a likely cause [A] | Continuous 24 GHz radar with still-target gates |
 
 ## 4. Component research
 
@@ -162,34 +162,48 @@ The plan builds and measures **one** unit before Paul builds the rest.
 
 ### 4.3 Illuminance
 
-The 2 lx on / 1 lx off threshold needs a sensor that resolves well below 0.1 lx, *after* the loss through the window in
-the case.
+The 2 lx on / 1 lx off threshold needs a sensor that resolves well below 0.1 lx after any loss in the case, and
+reports a change within 2 s at every light level.
 
-| | **OPT3001** | VEML7700 | BH1750 | LTR390 (Apollo's) |
+| | **OPT3001** | VEML7700 | BH1750 | LTR390 (the Apollo's) |
 |---|---|---|---|---|
-| ESPHome behaviour [E] | Automatic full-scale range set in hardware; one 800 ms single-shot conversion per update | `auto_mode` (default on) steps gain then integration time, **one step per measurement, restarting from the configured start values every update**. In the dark this takes several cycles, about 1-2 s or more [calc] | Coarse measurement, then H-resolution mode 2 with MTreg up to 254: about **0.11 lx/count** | Fixed gain and resolution; `window_correction_factor` |
-| Best resolution | 0.01 lx (TI datasheet) [S] | 0.0036 lx/count at gain 2, 800 ms (constant in ESPHome source) [E] | about 0.11 lx/count [E] | depends on settings |
-| Range top | about 83 klx (TI datasheet) [S] | about 120 klx; high error in direct sun [E] | about 65 klx at the low-resolution setting | — |
-| I2C address | 0x44 default; 0x45-0x47 by ADDR pin [E] | 0x10 | 0x23 | 0x53 |
-| Verdict | **Recommended**, subject to the address clash below | Good fallback; set start gain to suit low light | **Fails** 0.1 lx, worse behind a window | Reference only |
+| Best resolution | **0.01 lx** at the lowest range (full scale 40.95 lx) [D] | 0.0036 lx/count at gain 2 and 800 ms [D][E] | 0.11 lx/count (H-resolution mode 2, MTreg 254) [D][E] | 0.0083 lx/count at ESPHome defaults [calc] |
+| Top of range | 83.9 klx [D] | about 120 klx; ESPHome docs warn of 150-200k+ in direct sun [D][E] | about 100 klx [D] | about 8.7 klx at ESPHome defaults (X18, 20-bit) [calc] |
+| Ranging | **Automatic, in hardware**: one setting covers 0.01 lx to 83.9 klx [D] | Gain and integration time must step; no single setting does both [D] | Steps MTreg [E] | None in ESPHome; fixed gain [E] |
+| Dark offset | 0-3 codes, ≤0.03 lx [D] | 3 counts typ, about 0.01 lx [D][calc] | Up to 3 counts: up to 2.5 lx at MTreg 69 [D][calc] | 0 typ [D] |
+| Spectral match | >99 % IR rejection; 0.2 % response at 850 nm; 4 % variation across light sources [D] | Close to the eye response; ±10 % across sources; reads high under halogen and sun [D] | Incandescent/halogen read about 15-25 % high (datasheet figure) [D] | ±10 % across sources [D] |
+| Angular response, half sensitivity | ±47° [D] | ±55° [D] | about ±45-60° [D] | about ±50° [D] |
+| Part-to-part accuracy | ±10 % at 2000 lx [D] | ≤10 % [D] | ±20 % [D] | ±10 % [D] |
+| ESPHome reading time [E][calc] | About 0.83 s at any light level: one 800 ms conversion | Steps gain, then integration time, restarting from the start values on every update. Starting at gain 2 / 100 ms: about 1.2 s at 2 lx, 2.8 s at 1 lx, about 6 s near 0 lx | About 0.7 s | About 0.4 s |
+| I2C address | 0x44 default; 0x45-0x47 by ADDR pin [D][E] | 0x10 [D] | 0x23 / 0x5C [D] | 0x53 [D] |
+| Verdict | **Recommended** | Fallback if Paul needs more than 84 klx; "lights off" reports slowly | **Fails**: 0.11 lx, ±20 %, and dark counts worth up to 2.5 lx | Reference only |
 
-**Address clash:** the SHT45 exists only at 0x44 [D], the same as the OPT3001 default. The OPT3001's ADDR pin must go
-to VDD (0x45). On a generic breakout that may mean cutting a trace. I'll check the board before recommending a
-specific one.
+**Recommendation: OPT3001.** It is the only candidate that auto-ranges in hardware. ESPHome gets a full reading in
+about 0.83 s at any light level [E], so 1 s polling with a delta filter meets the 2 s target. It also has the best
+IR rejection, so LED, incandescent and daylight read alike. The 83.9 klx ceiling covers "tens of klx near a window",
+and the aperture's reduced field of view raises the effective ceiling further [calc].
 
-**Placement:** a sealed light cell at the top of the front face, above the radar window and outside its beam. A thin
-printed window (second nozzle, clear or natural PETG) or a light pipe closes the cell; see section 6.4. The window
-attenuates light, so it is calibrated with an ESPHome `multiply` filter (or `glass_attenuation_factor` on the
-VEML7700).
+**Address clash.** The SHT45 exists only at 0x44 [D], the OPT3001's default address. The ESP32-C3 has a single I2C bus
+in ESPHome (`"NUM": 1` in the 2026.9.1 i2c component) [E], so a second bus isn't an option. The OPT3001's ADDR pin must
+go to VDD (0x45).
 
-**Readings will differ from the Apollo.** The Apollo uses a different sensor (LTR390) behind a different window, so a
-DIY unit will not read the same lux. The 2 lx / 1 lx Arty Player thresholds must be re-tuned against the new
-readings if a DIY unit replaces the Apollo; the calibration doc (Phase 4) will say so. Default Apollo settings also
-limit the comparison: LTR390 update interval 60 s, and an optional "Reduce DB Reporting" 5 lx delta filter
-(`Core.yaml`) [G]. For the calibration run, Paul would set the Apollo to a short interval and turn that filter off.
+**Breakout boards.** The generic breakout in the ESPHome docs photo has an ADD pin [E], but what it is wired to isn't
+known. Phase 1 picks a board where the ADDR pin can be strapped. Paul confirms 0x45 with the I2C scan in the ESPHome
+log before final assembly. No price for a generic OPT3001 board could be found.
 
-> The lux research is still being completed in this session; datasheet figures marked [S] above will be checked
-> against the TI and Vishay datasheets before this PR is ready.
+**Readings will differ from the Apollo.** The Apollo uses a different sensor (LTR390) behind its own window, with
+`window_correction_factor` left at 1.0 [G]. A DIY unit will not read the same lux, so if one replaces the Apollo, the
+2 lx / 1 lx Arty Player thresholds must be re-tuned. The calibration doc (Phase 4) will say so.
+
+**Calibration against the Apollo (outline for `docs/calibration.md`).**
+
+1. Prepare the Apollo for logging. By default it updates every 60 s, and its "Reduce DB Reporting" switch drops changes
+   under 5 lx [G]. Set it to about 5 s and switch Reduce DB Reporting off. Keep its RGB LEDs off.
+2. Mount both side by side, facing the same way, and log for several days. The DIY unit logs every 1 s.
+3. Resample to 1-minute medians. Drop light transitions, periods where either sensor is saturated (the Apollo clips at
+   about 8.7 klx), and any period when an LED was on.
+4. Fit the 0-20 lx band and the 20 lx to 8 klx band separately. Compare evening LED light with daylight. Then apply the
+   result with ESPHome's `calibrate_linear` filter, using a few fitted points rather than raw scatter.
 
 ### 4.4 Temperature and humidity
 
@@ -267,6 +281,9 @@ redoes them live if the domains in section 9 are opened.
 | **Per unit** | **about €13-22** | **about €27-35** | **about €51-60** |
 | Commercial equivalent | EP Lite £28 / €39.99 (no T/RH) [S] | MSR-2 €45.99 Domadoo [S] ($37.99 Apollo [G]) | MSR-2 with CO2 €69.99 Domadoo [S] ($57.99 Apollo [G]) |
 
+The enclosure concept in section 6 is the same for all three options. Option C adds a CO2 compartment in the main
+body.
+
 Extra costs to plan for:
 
 - **Delivery:**
@@ -280,9 +297,8 @@ Extra costs to plan for:
 
 **Against the brief's first estimate:**
 
-- Option A matches the brief's budget figure (€10-12) only with AliExpress prices and a generic SHT40, which carries
-  counterfeit risk.
-- With a genuine SHT40 it is about €15-18.
+- Option A as tabled, with a genuine SHT40, is about €13-22. It reaches the brief's €10-12 only with AliExpress prices
+  and a generic SHT40, which carries counterfeit risk.
 - Option B costs about €10-15 more per unit than the brief's €17-20, almost all of it in the genuine SHT45 and the
   XIAO.
 - Option B is still about 25-40 % below an MSR-2 bought in France (€45.99), and it adds humidity and a calibrated temperature.
@@ -299,8 +315,8 @@ below, and the electronics vent upward.
           ↑   ↑   ↑   ↑
       ┌──────────────────────┐
       │ ▒▒▒ top vents ▒▒▒▒▒▒ │
-      │  ┌────────────────┐  │      MAIN BODY (heat sources, about 0.55 W)
-      │  │ lux light cell │◄─┼──    thin printed window, upper front face, outside the radar beam
+      │  ┌────────────────┐  │      MAIN BODY (heat sources, about 0.56 W)
+      │  │ lux light cell │◄─┼──    open aperture, upper front face, outside the radar beam
       │  └────────────────┘  │
  wall │  XIAO ESP32-C3       │
  ─────┤  (antenna at back,   │      flat front wall, 100 % infill, no carbon fill
@@ -384,20 +400,40 @@ compare a still target's energy with no cover and with plates of 0.9, 2.0 and 3.
 
 ### 6.4 Lux aperture
 
-Options:
+**Recommendation: an open, straight hole into a sealed, opaque light cell**, with the sensor as close as possible to
+the outer face.
 
-- **(a) Open hole:** most light. But dust gets in, and the room sees the inside.
-- **(b) Light pipe:** clean look. But clear PETG or PLA prints are not optically clear, and a pipe narrows the field
-  of view.
-- **(c) Thin window, printed with the H2D's second nozzle (recommended):**
-  - 0.6-0.8 mm of natural or clear PETG flush with the face, over a short tapered aperture in an opaque body.
-  - It diffuses light, which widens the angular response, and it seals the cell.
-  - The transmission loss is calibrated out.
-  - Requirement: the sensor must still resolve 0.1 lx after the loss, which is why the BH1750 fails.
+- **TI's guidance:**
+  - Do not use light pipes unless their optics are understood.
+  - Avoid grille-like windows.
+  - Keep reflective parts away from the sensor.
+  - Aim for a field of view of at least ±35°, ideally ±45° [D].
+- **Hole size:** Vishay's rule is hole width = active-area width + 2 × d × tan(half-angle), where d is the distance
+  from the sensor top to the outside surface [D]. At ±45° that is about 0.5 mm + 2·d: about 4.5 mm for d = 2 mm
+  [calc]. The OPT3001's active-area width is not in the datasheet section I read [A]; Phase 3 sizes the hole from the
+  breakout's measured position.
+- **An open hole needs no transmission factor.** It is spectrally neutral. Its only calibration is the reduced field
+  of view, which the comparison with the Apollo absorbs.
 
-The cell walls are opaque body material, with no path from the MCU compartment. Any breakout power LED is
-desoldered, or its jumper cut, before assembly. Phase 3 adds a coupon with three window thicknesses, to measure
-transmission against an unobstructed sensor.
+**Alternatives:**
+
+- **Thin printed window** (0.4-0.6 mm natural or clear PETG, using the H2D's second nozzle):
+  - It keeps dust out and looks tidier.
+  - **No source gives the transmission of a printed PETG layer**, so it must be measured. It also diffuses the light
+    and changes the angular response.
+  - It is acceptable only with a measured 1/T correction (a `multiply` filter) checked under both LED light and
+    daylight.
+  - A translucent body around the cell could also carry stray light from inside the case [A].
+  - Phase 3 adds a coupon with the open hole and two window thicknesses, so Paul can measure T against the bare
+    sensor.
+- **Light pipe:** not recommended, per TI [D].
+
+**Keeping LED light out:**
+
+- The cell walls are opaque body material, with no path from the MCU compartment. The cell itself is never printed in
+  natural filament.
+- Any breakout power LED is desoldered, or its jumper cut, before assembly.
+- The acceptance check: in a dark room, the reading stays at the dark spec (≤0.03 lx) with the device running [D].
 
 ### 6.5 Mounting options and radar orientation
 
@@ -413,7 +449,8 @@ transmission against an unobstructed sensor.
 - **Body:** PETG. Its glass transition is higher than PLA's, and the electronics compartment runs warm. PLA would work
   but has less margin [A].
 - **Radar face:** same material as the body, 100 % infill, printed face-down on the plate for a flat, uniform wall.
-- **Lux window:** natural or clear PETG from the second nozzle.
+- **Lux cell:** opaque body material. If a printed window is chosen after the coupon test, natural or clear PETG from
+  the second nozzle.
 - **PETG-CF:** usable only for parts nowhere near the radar's field of view (for example a wall bracket), if Paul
   wants it at all.
 - **Supports:** none, by design. Parts are split so that each prints flat.
@@ -487,14 +524,14 @@ GitHub and PyPI work, which is how the ESPHome source and docs, the datasheet mi
 3. **Room sizes and mounting.** For each room: the size, where the unit would mount (wall, corner, shelf), and the
    distance to the sofa or bed it must see.
 4. **CO2.** Do you want the variant, and in which rooms?
-5. **Budget.** Your per-unit budget. Is option B at about €30 acceptable, or should I aim for option A?
+5. **Budget.** Your per-unit budget. Is option B at about €27-35 acceptable, or should I aim for option A?
 6. **Filament and colour.** Which filaments and colours do you have? Is a light colour OK for the radar face (section
-   6.3)? Do you have natural or clear PETG for the lux window?
+   6.3)? Is an open lux aperture (about 4-5 mm) acceptable on the front, or do you want a printed window (6.4)?
 7. **Bluetooth proxy.** Wanted at all? If yes, would a separate dedicated proxy work instead (section 8)?
 8. **Device naming.** I suggest `sense-<room>`, for example `sense-great-room` (`sense-great-room.mulet.flypig.net`,
    friendly name "Great Room Sense"). Or do you have an existing pattern? 31 characters at most, no underscores.
 9. **Public repo.** The repo is public. Is it OK for device configs to contain `mulet.flypig.net`? I have kept the
-   SSID and router name out of the repo; they go in the git-ignored `secrets.yaml`.
+   SSID and router name out of the repo; the SSID goes in the git-ignored `secrets.yaml`.
 10. **Arty Player.** Which sensor drives it today: the Apollo's LTR390? What update interval is set on the Apollo,
     and is "Reduce DB Reporting" on? Have you changed the Apollo's DPS temperature offset from 14.54 °C?
 11. **Power.** Do you have spare 5 V USB supplies and cables, and are they USB-A or USB-C chargers?
@@ -502,6 +539,8 @@ GitHub and PyPI work, which is how the ESPHome source and docs, the datasheet mi
 13. **Board work.** Are you happy to desolder or cut breakout power LEDs and an address jumper? It's a few minutes per
     unit with your soldering station.
 14. **Network access.** Can you allow the domains in section 9, at least the price and datasheet rows, for Phase 1?
+15. **Cellar probe.** Which ESP32 board and SHT45 breakout does the cellar-probe project use? Phase 1 lists the parts
+    both projects can share in one order.
 
 ## 11. Sources
 
@@ -512,9 +551,10 @@ Read directly (GitHub-hosted):
   - climate and CO2: `sht4x`, `scd4x`;
   - lux: `opt3001`, `veml7700`, `bh1750`, `ltr390`;
   - radio: `wifi`, `bluetooth_proxy`, `openthread`;
-  - core: `core/config.py` (node name rules).
+  - core: `core/config.py` (node name rules), `i2c` (bus count per ESP32 variant).
 - **ESPHome docs source**, branch `current` at commit 080e3ad (2026-10-14): https://github.com/esphome/esphome-docs
-  (`bluetooth_proxy.mdx`, `sensor/opt3001.mdx`, `sensor/veml7700.mdx`, `sensor/ld2412.mdx`, `sensor/scd4x.mdx`).
+  (`bluetooth_proxy.mdx`, `sensor/opt3001.mdx`, `sensor/veml7700.mdx`, `sensor/ld2412.mdx`, `sensor/scd4x.mdx`,
+  `sensor/sht4x.mdx`, `openthread.mdx`, `wifi.mdx`).
 - **Hi-Link datasheets (GitHub mirrors):**
   - LD2410C manual V1.00: https://github.com/soubhik-khan/HLK-LD2410C
   - LD2412 manual V1.01: Allegro attachment mirror (`storage.googleapis.com/allegro-offer-attachments/83d6940a…`)
@@ -535,6 +575,12 @@ Read directly (GitHub-hosted):
   - https://github.com/esphome/issues/issues/6142 (clone sensor serial 0xFFFFFFFF)
   - https://github.com/ApolloAutomation/AIR-1/issues/130 (BLE heat)
   - https://github.com/wled/WLED/issues/4283 (C3 TX power)
+- **Light-sensor datasheets and app notes (GitHub mirrors):**
+  - TI OPT3001 datasheet SBOS681B (2014): https://github.com/perryrh0dan/opt3001 (`datasheet.pdf`)
+  - Vishay VEML7700 datasheet rev 1.6 and "Designing the VEML7700 into an application" (2019):
+    https://github.com/latonita/datasheets-storage (`sensors/`)
+  - ROHM BH1750FVI Rev.D: https://github.com/wemos/docs (`docs/en/_static/files/bh1750fvi-tr.pdf`)
+  - Lite-On LTR-390UV: https://github.com/ApolloAutomation/MSR-2 (`Datasheets/`)
 - **Thermal evidence:**
   - https://github.com/maierkomor/atrium/wiki/Temperature-Monitoring
   - https://github.com/AlexeiakaTechnik/DIY-esp32-esphome-homeassistant-sensors_cams
@@ -551,5 +597,4 @@ Search snippets only, unverified [S]:
 - PLA and PETG permittivity (Felício et al., ICECom 2016; University of Arkansas thesis 2022);
 - carbon-fibre shielding (ACS Omega 2023);
 - the EU €3 parcel duty;
-- review comparisons of LD2412 and LD2410 range;
-- OPT3001 datasheet figures, still to be confirmed.
+- review comparisons of LD2412 and LD2410 range.
