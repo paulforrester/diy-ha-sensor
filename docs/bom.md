@@ -21,7 +21,7 @@
 - a CO2 sensor as standard, so every unit is interchangeable (Paul's decision);
 - a 1-Wire socket for optional remote temperature probes (DS18B20), so probes can be added later without changing
   the unit (Paul's decision; section 5);
-- its own USB wall adapter and cable.
+- its own USB wall adapter and a white 2 m USB-A to USB-C cable.
 
 **Estimated cost:**
 
@@ -79,7 +79,7 @@ The run quantity is the per-unit quantity × 10, plus spares.
 | 9 | **4.7 kΩ resistor, 1-Wire pull-up**<br>1/4 W through-hole; pulls the 1-Wire line (D2 / GPIO4) up to 3V3 | 1 | 15 | DigiKey.fr (with order A) | [AliExpress resistor assortment](https://www.aliexpress.com/w/wholesale-resistor-kit-1-4w.html) | €0.05 - €0.20 | assumed: no price found | low |
 | 10 | **JST-XH 3-pin header, 1-Wire socket**<br>2.5 mm pitch, through-hole, straight; mates with an XH 3-pin housing on a future probe cable | 1 | 12 | [AliExpress (JST-XH connector kit)](https://www.aliexpress.com/w/wholesale-jst-xh-2.5mm-connector-kit.html) | DigiKey.fr (genuine JST B3B-XH-A) | €0.10 - €0.40 | assumed: no price found | low |
 | 11 | **USB wall adapter, 5 V**<br>USB-A output, 5 V at least 1 A (2 A preferred), EU plug, CE marked, reputable brand | 1 | 10 | [Amazon.fr (multipack)](https://www.amazon.fr/Chargeur-Adaptateur-Compatible-Smartwatch-%C3%89couteurs/dp/B0CLMBHCVF) | local retailer | €2.50 - €6.00 | estimated: search snippet 2026-10-15 | medium (electrical safety: avoid unbranded adapters) |
-| 12 | **USB-A to USB-C cable**<br>1.5-2 m, colour to suit the rooms | 1 | 10 | Amazon.fr (multipack) | local retailer | €2.00 - €4.00 | assumed: no price found | low |
+| 12 | **USB-A to USB-C cable**<br>White, 2 m, USB-A to USB-C (Paul, 2026-10-15) | 1 | 10 | Amazon.fr (multipack) | local retailer | €2.00 - €4.00 | assumed: no price found | low |
 | 13 | **Wiring consumables**<br>26 AWG silicone hookup wire (6 colours), heat-shrink assortment, small perfboard strips, 2.54 mm headers | — | 1 | AliExpress | Amazon.fr | €15.00 - €20.00 | assumed: no price found | low |
 | 14 | **Fixings**<br>M2 x 6 mm self-tapping screws for board standoffs; wall screws and plugs (2 per unit) | — | 1 | Amazon.fr | local hardware shop | €5.00 - €8.00 | assumed: no price found | low |
 | 15 | **PETG filament**<br>About 60 g per unit plus fit coupons: about 0.7 kg; plus a little natural PETG only if the printed lux window is chosen | — | 1 | Paul's stock |  | €0.00 - €22.00 | assumed: no price found | low |
@@ -224,7 +224,7 @@ cloud session's proxy. Steps:
    - OPT3001 board (line 5): pick one with the ADDR pin broken out and no LED.
    - JST-SH cables (6, 8): Adafruit or SparkFun part numbers.
    - 4.7 kΩ resistors and JST-XH headers (9, 10): confirm the JST part number (B3B-XH-A is from memory).
-   - USB cables (12): 1.5-2 m.
+   - USB cables (12): white, 2 m, USB-A to USB-C.
    - Adafruit SCD-40 (7): the DigiKey URL.
 5. **Regenerate.** Re-run `python3 tools/bom_totals.py` and check that the tables in sections 3 and 4 changed as
    expected.
@@ -234,16 +234,15 @@ cloud session's proxy. Steps:
 
 ## 9. Open questions
 
-1. **Cable length and colour:** the USB cable length and colour per room. 1.5-2 m is assumed.
-2. **From the proposal, still open (section 10 there):**
-   - rooms and mounting positions;
-   - filament colour;
-   - Bluetooth proxy;
-   - the device naming pattern (`sense-<room>` suggested);
-   - whether `mulet.flypig.net` may appear in the public repo;
-   - the Arty Player and Apollo settings.
+The BOM itself has no open questions left. These are still open from the proposal (section 10 there), and none of
+them blocks ordering:
 
-   None of these blocks ordering.
+- rooms and mounting positions;
+- filament colour;
+- Bluetooth proxy;
+- the device naming pattern (`sense-<room>` suggested);
+- whether `mulet.flypig.net` may appear in the public repo;
+- the Arty Player and Apollo settings.
 
 ## 10. Sources
 

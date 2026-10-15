@@ -4,6 +4,11 @@ A dated log, most recent first. Each entry says what was decided, why, and on wh
 wrong, it is corrected in place with "Correction: ..." rather than deleted. "Proposed" entries wait for Paul's review
 of the PR that adds them.
 
+## 2026-10-15: USB cable (decided)
+
+- **Cable: white, 2 m, USB-A to USB-C, the same for every unit** (Paul). The USB-A end matches the USB-A wall adapters
+  in the BOM, which avoid USB-C power negotiation entirely.
+
 ## 2026-10-15: 1-Wire socket on every unit (decided)
 
 Source: Paul, in the Phase 1 session, after discussing what dropping the DS18B20 probes would cost.
