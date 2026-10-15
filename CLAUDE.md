@@ -27,8 +27,8 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
 - ESPHome `sht4x` reads the chip serial number (command 0x89) at boot and prints it in the config dump; the heater is
   off unless `heater_max_duty` > 0 (default 0.0).
 - ESPHome `wifi` default `power_save_mode` on ESP32 is `light` in 2026.9.1.
-- ESPHome `opt3001` defaults to I2C address 0x44, the same as SHT4x-AD1B parts. Two such parts need different
-  addresses (or a second bus).
+- ESPHome `opt3001` defaults to I2C address 0x44, the same as the SHT45 (which exists only at 0x44). The ESP32-C3 has
+  one I2C bus in ESPHome (`"NUM": 1` in the `i2c` component), so the OPT3001's ADDR pin must go to VDD (0x45).
 - Reference sensors in the house: six Sonoff SNZB-02D (Zigbee T/RH), Apollo MSR-2 (LTR390 lux, LD2410B radar).
 - Apollo MSR-2 measured 2026-10-15: DPS310 read 27.9 C vs SNZB-02D 21.6-24.6 C; ESP internal 45.8 C; CO2 346 ppm
   (below outdoor ~420 ppm). No humidity entity in its stock config.
@@ -62,7 +62,7 @@ is **public**); its requirements are restated in `docs/design_proposal.md` secti
   in the git-ignored `secrets.yaml`.
 - **The repo is public.** Don't commit the SSID, the router's host name, LAN addresses, MACs or anything else that maps
   the home network. The DNS zone appears only because device configs must use it (pending Paul's confirmation, see
-  `docs/design_proposal.md` section 8).
+  `docs/design_proposal.md` section 10, question 9).
 - **No PETG-CF or any carbon- or metal-filled material in front of the radar.**
 - Status LED off by default. No LED near or leaking into the lux sensor.
 - If the cloud environment blocks something (a toolchain download, a vendor page), name the exact domain and ask Paul
